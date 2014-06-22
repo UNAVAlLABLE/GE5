@@ -7,7 +7,9 @@ public class TestGame extends Game {
 	@Override
 	protected void init() {
 		//For testing
-		fixedTickRate = 1;
+		width = 800;
+		height = 600;
+		fixedTickRate = 30;
 		isRunning = true;
 	}
 

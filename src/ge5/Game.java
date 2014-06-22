@@ -40,7 +40,7 @@ public abstract class Game {
 		
 		start();
 		
-		gameLoop2();
+		gameLoop3();
 		
 	}
 	
@@ -109,6 +109,55 @@ public abstract class Game {
 		}		
 
 	}
+	
+	protected void gameLoop3() {
+
+		long fixedTickTime = 1000000000L / fixedTickRate;
+		long lastTime = System.nanoTime();
+		long accumulatedTime = 0;
+		long overflow = 0;
+		int c = 0;
+
+		start();
+
+		while (isRunning) {
+	
+			lastTime = System.nanoTime();
+	
+			if (accumulatedTime >= fixedTickTime) {
+	
+				accumulatedTime -= fixedTickTime;
+	
+				overflow += accumulatedTime;
+	
+				if (overflow >= fixedTickTime) {
+	
+					System.out.println("fixed Tick Skipped");
+	
+					overflow -= fixedTickTime;
+	
+				}else{
+						
+					c++;
+					
+					if (c == fixedTickRate){
+						
+						System.out.println(c);
+						c=0;
+					}
+					
+					fixedTick();
+					
+				}
+	
+			}
+	
+			accumulatedTime += (System.nanoTime() - lastTime);
+	
+	}	
+
+}
+
 	
 	protected abstract void init();
 
