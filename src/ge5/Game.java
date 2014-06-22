@@ -75,39 +75,39 @@ public abstract class Game {
 	}
 	
 	protected void gameLoop2() {
-		
+
 		long fixedTickTime = 1000000000L / fixedTickRate;
-		long lastTime = System.nanoTime();
-		long waitTime = 0;
+		long startTime = System.nanoTime();
+		long accumulatedTime = 0;
 		long overflow = 0;
-		
+		long lastTick = System.nanoTime();
+
 		start();
-		
+
 		while (isRunning) {
-			
-			lastTime = System.nanoTime();
-					
-			if (waitTime >= fixedTickTime) {
-				
-				waitTime -= fixedTickTime;
-				
-				overflow += waitTime;
-				
+
+			startTime = System.nanoTime();
+
+			if (accumulatedTime >= fixedTickTime) {
+
+				accumulatedTime = accumulatedTime - fixedTickTime * (accumulatedTime / fixedTickTime);
+
+				overflow += accumulatedTime;
+
 				if (overflow >= fixedTickTime) {
-					
-					System.out.println("fixed Tick Skipped");
-				
+					System.out.println("Fixed Tick Skipped");
 					overflow -= fixedTickTime;
-					
 				} else {
+					System.out.println(1000000000.0f / (System.nanoTime() - lastTick));
+					lastTick = System.nanoTime();
 					fixedTick();
 				}
 			}
-			
-			waitTime += System.nanoTime() - lastTime;
-				
+
+			accumulatedTime += System.nanoTime() - startTime;
+
 		}		
-		
+
 	}
 	
 	protected abstract void init();
