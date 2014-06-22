@@ -3,6 +3,7 @@
 
 package ge5;
 
-public class EntityManager {
+
+class EntityManager {
 
 }
