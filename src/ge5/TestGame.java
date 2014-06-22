@@ -13,7 +13,7 @@ public class TestGame extends Game {
 
 	@Override
 	protected void start() {
-		gameLoop();
+		
 	}
 
 	@Override
