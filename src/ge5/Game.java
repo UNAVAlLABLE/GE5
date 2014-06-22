@@ -17,7 +17,7 @@ public abstract class Game {
 	protected int scale = 1;
 	
 	// Default Game Fixed tick rate
-	protected int fixedTickRate = 1;
+	protected int fixedTickRate = 60;
 	
 	protected Engine engine;
 	
@@ -45,38 +45,32 @@ public abstract class Game {
 	}
 	
 	protected void gameLoop() {
-		int ticksPerFrame = 1;
-		long fixedFrameTime = 1000000000L / fixedTickRate;
-		long lastTime = System.nanoTime();
+		
+		long fixedTickTime = 1000000000L / fixedTickRate;
 		
 		while (isRunning) {
-			try {
-				long previousFrameTime = System.nanoTime() - lastTime;		
-				long waitTime = fixedFrameTime - previousFrameTime;
-					
-				if (waitTime > 0) {
-					//Game is running normally
-					Thread.sleep(waitTime / 1000000L, (int) (waitTime % 1000000L));
-					ticksPerFrame++;
-				} else {
-					//Game is lagging
-					//Add number of skipped ticks
-					ticksPerFrame += (int) (-waitTime / fixedFrameTime);
-				}
+			//Record start of tick
+			long startTime = System.nanoTime();
+
+			fixedTick();
+			
+			//Calculate how long the tick took
+			long currentTickTime = System.nanoTime() - startTime;
+			
+			long waitTime = fixedTickTime - currentTickTime;
+			
+			//If the tick did not take longer than it should have, wait
+			if (waitTime > 0) {
 				
-				//Print the "instantaneous" frame rate
-				System.out.println(1000000000.0f / (System.nanoTime() - lastTime));
+				long stopTime = System.nanoTime() + waitTime;
 				
-				lastTime = System.nanoTime();
-				
-				while (ticksPerFrame > 0) {
-					fixedTick();
-					ticksPerFrame--;
-				}
-			} catch (Exception e) {
-				//Probably will never happen
+				//Let's waste some CPU cycles
+				while(System.nanoTime() < stopTime) {}
+			
 			}
-		}		
+			
+			System.out.println(1000000000.0f / (System.nanoTime() - startTime));
+		}
 		
 	}
 	
@@ -95,7 +89,7 @@ public abstract class Game {
 					
 			if (waitTime >= fixedTickTime) {
 				
-				waitTime = waitTime - fixedTickTime;
+				waitTime -= fixedTickTime;
 				
 				overflow += waitTime;
 				
@@ -105,10 +99,9 @@ public abstract class Game {
 				
 					overflow -= fixedTickTime;
 					
-				}else
-				
+				} else {
 					fixedTick();
-				
+				}
 			}
 			
 			waitTime += System.nanoTime() - lastTime;
