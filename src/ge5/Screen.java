@@ -45,6 +45,8 @@ class Screen {
 		
 		// Resize the frame around the canvas
 		frame.pack();
+		
+		frame.setResizable(false);
 
 		// What happens when the x button is pressed
 		frame.addWindowListener(new WindowAdapter() {
