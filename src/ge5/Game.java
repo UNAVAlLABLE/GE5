@@ -52,7 +52,7 @@ public abstract class Game {
 			//Record start of tick
 			long startTime = System.nanoTime();
 
-			fixedTick();
+			fixedTick(1);
 			
 			//Calculate how long the tick took
 			long currentTickTime = System.nanoTime() - startTime;
@@ -100,7 +100,7 @@ public abstract class Game {
 				} else {
 					System.out.println(1000000000.0f / (System.nanoTime() - lastTick));
 					lastTick = System.nanoTime();
-					fixedTick();
+					fixedTick(1);
 				}
 			}
 
@@ -112,48 +112,26 @@ public abstract class Game {
 	
 	protected void gameLoop3() {
 
-		long fixedTickTime = 1000000000L / fixedTickRate;
-		long lastTime = System.nanoTime();
-		long accumulatedTime = 0;
-		long overflow = 0;
-		int c = 0;
-
+		long fixedTickTime = (1000L / fixedTickRate);
+		long accumulatedTime = fixedTickTime;
+		long lastTime;
+		
 		start();
 
 		while (isRunning) {
 	
-			lastTime = System.nanoTime();
+			lastTime = System.currentTimeMillis();
 	
 			if (accumulatedTime >= fixedTickTime) {
-	
-				accumulatedTime -= fixedTickTime;
-	
-				overflow += accumulatedTime;
-	
-				if (overflow >= fixedTickTime) {
-	
-					System.out.println("fixed Tick Skipped");
-	
-					overflow -= fixedTickTime;
-	
-				}else{
-						
-					c++;
 					
-					if (c == fixedTickRate){
-						
-						System.out.println(c);
-						c=0;
-					}
-					
-					fixedTick();
-					
-				}
+				fixedTick((int) (accumulatedTime / fixedTickTime));
+				
+				accumulatedTime = accumulatedTime - fixedTickTime * (accumulatedTime / fixedTickTime);
 	
 			}
 	
-			accumulatedTime += (System.nanoTime() - lastTime);
-	
+			accumulatedTime += (System.currentTimeMillis() - lastTime);
+			
 	}	
 
 }
@@ -162,9 +140,7 @@ public abstract class Game {
 	protected abstract void init();
 
 	protected abstract void start();
-	
-	protected abstract void tick(long delta);
-	
-	protected abstract void fixedTick();
+		
+	protected abstract void fixedTick(int skips);
 
 }

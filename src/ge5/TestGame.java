@@ -9,7 +9,7 @@ public class TestGame extends Game {
 		//For testing
 		width = 800;
 		height = 600;
-		fixedTickRate = 30;
+		fixedTickRate = 1;
 		isRunning = true;
 	}
 
@@ -19,13 +19,7 @@ public class TestGame extends Game {
 	}
 
 	@Override
-	protected void tick(long delta) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	protected void fixedTick() {
+	protected void fixedTick(int skips) {
 		// TODO Auto-generated method stub
 		
 	}
