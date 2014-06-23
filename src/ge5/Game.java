@@ -112,7 +112,7 @@ public abstract class Game {
 	
 	protected void gameLoop3() {
 
-		long fixedTickTime = (1000L / fixedTickRate);
+		long fixedTickTime = (500L / fixedTickRate);
 		long accumulatedTime = fixedTickTime;
 		long lastTime;
 		
