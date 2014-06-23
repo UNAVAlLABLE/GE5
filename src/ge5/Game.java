@@ -40,17 +40,22 @@ public abstract class Game {
 		
 		start();
 		
-		gameLoop3();
+		gameLoop2();
 		
 	}
 	
 	protected void gameLoop() {
 		
 		long fixedTickTime = 1000000000L / fixedTickRate;
+		long startTime = System.nanoTime();
 		
 		while (isRunning) {
+			
+			long now = System.nanoTime();
+			System.out.println(1000000000.0f / (now - startTime));
+			
 			//Record start of tick
-			long startTime = System.nanoTime();
+			startTime = now;
 
 			fixedTick(1);
 			
@@ -69,7 +74,6 @@ public abstract class Game {
 			
 			}
 			
-			System.out.println(1000000000.0f / (System.nanoTime() - startTime));
 		}
 		
 	}
@@ -77,34 +81,30 @@ public abstract class Game {
 	protected void gameLoop2() {
 
 		long fixedTickTime = 1000000000L / fixedTickRate;
-		long startTime = System.nanoTime();
 		long accumulatedTime = 0;
-		long overflow = 0;
-		long lastTick = System.nanoTime();
-
-		start();
+		long tickStartTime = System.nanoTime();
+		long lastTick = tickStartTime;
 
 		while (isRunning) {
 
-			startTime = System.nanoTime();
+			long tickStopTime = System.nanoTime();
+			accumulatedTime += tickStopTime - tickStartTime;
+			
+			//End of tick is the start of next tick
+			//This is why (I think) it ran at half speed beofore
+			tickStartTime = tickStopTime;
 
 			if (accumulatedTime >= fixedTickTime) {
-
+				
+				long now = System.nanoTime();
+				System.out.println(1000000000.0f / (now - lastTick));
+				lastTick = now;
+				
+				fixedTick((int) (accumulatedTime / fixedTickTime));
+				
 				accumulatedTime = accumulatedTime - fixedTickTime * (accumulatedTime / fixedTickTime);
-
-				overflow += accumulatedTime;
-
-				if (overflow >= fixedTickTime) {
-					System.out.println("Fixed Tick Skipped");
-					overflow -= fixedTickTime;
-				} else {
-					System.out.println(1000000000.0f / (System.nanoTime() - lastTick));
-					lastTick = System.nanoTime();
-					fixedTick(1);
-				}
+	
 			}
-
-			accumulatedTime += System.nanoTime() - startTime;
 
 		}		
 
