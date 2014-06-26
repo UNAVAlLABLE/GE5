@@ -6,52 +6,54 @@ package ge5;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Frame;
+import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
-import java.awt.image.BufferedImage;
 
-class Screen {
+public class Screen {
 	
-	Game game;
+	private int width;
+
+	private int height;
 	
-	Canvas canvas;
+	protected int scale = 1;
+		
+	private Render renderer;
 	
-	Frame frame;
+	private Canvas canvas;
 	
-	BufferStrategy bufferStrategy;
+	private Graphics2D g;
 	
-    BufferedImage image;
+	private Frame frame;
+	
+	private BufferStrategy bufferStrategy;
+	    
+    public Screen(Game game, GUI gui, String title) {
+		this(game, gui, title, 1280, 720, 1);
+	}
     
-	Screen(Game game, String title, int width, int height, int scale) 
-	{
+	Screen(Game game, GUI gui, String title, int width, int height, int scale) {
+		
+		renderer = new Render(gui);
 				
-		this.game = game;
-		
-		image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-		
 		canvas = new Canvas(GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration());
-		canvas.setSize(width * scale, height * scale);
 		canvas.setIgnoreRepaint(true);
-		canvas.addKeyListener(game.input);	
-		
+		canvas.addKeyListener(game.input);
+				
 		frame = new Frame();
 		frame.setTitle(title);
 		frame.setIgnoreRepaint(true);
 		frame.setBackground(Color.black);
 		
 		frame.add(canvas);
-		
-		// Resize the frame around the canvas
-		frame.pack();
-		
+								
 		frame.setResizable(false);
 
 		// What happens when the x button is pressed
 		frame.addWindowListener(new WindowAdapter() {
 			
-			@Override
 			public void windowClosing(WindowEvent we) {
 				
 				System.exit(0);
@@ -60,15 +62,57 @@ class Screen {
 			
 		});
 		
-		canvas.createBufferStrategy(2);
-		
+		onScreenChanged(width, height);
+				
 		// Centers the window
-		frame.setLocationRelativeTo(null);
+		center();
 		frame.setVisible(true);
 		
 		frame.requestFocus();
 		canvas.requestFocus();
 
+	}
+
+	public void update() {
+		renderer.render(g);
+		bufferStrategy.show();
+	}
+	
+	public void center() {
+		frame.setLocationRelativeTo(null);
+	}
+	
+	public void setWidth(int width) {
+		this.width = width;
+		onScreenChanged(width, height);
+	}
+	
+	public void setHeight(int height) {
+		this.height = height;
+		onScreenChanged(width, height);
+	}
+	
+	public void setDimensions(int width, int height) {
+		this.width = width;
+		this.height = height;
+		onScreenChanged(width, height);
+	}
+	
+	public int getWidth() {
+		return width;
+	}
+	
+	public int getHeight() {
+		return height;
+	}
+	
+	private void onScreenChanged(int width, int height) {
+		canvas.setSize(width * scale, height * scale);
+		frame.pack();
+		canvas.createBufferStrategy(2);
+		bufferStrategy = canvas.getBufferStrategy();
+		g = (Graphics2D) bufferStrategy.getDrawGraphics();
+		renderer.onScreenChanged(width, height);
 	}
 
 }
