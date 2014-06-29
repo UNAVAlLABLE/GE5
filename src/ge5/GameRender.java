@@ -14,18 +14,14 @@ class GameRender extends Canvas{
 	BufferStrategy bufferStrategy;
 	Graphics2D g;
 	
-	int width;
-	
-	int height;
+	int width, height;
 
 	GameRender(int width, int height) {
 		
 		this.width = width;
-		
 		this.height = height;
 		
 		image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-		
 		g = image.createGraphics();
 		
 		setSize(width, height);
@@ -44,7 +40,6 @@ class GameRender extends Canvas{
 		g.setColor(Color.RED);
 		g.fillRect(0, 0, width, height);
 		
-		/////////////////////////////////////////
 		/////////////////////////////////////////
 		
 		g = (Graphics2D) getBufferStrategy().getDrawGraphics();

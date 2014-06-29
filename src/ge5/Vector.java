@@ -13,15 +13,20 @@ public class Vector {
 	public static final Vector left = new Vector(-1.0f, 0.0f);
 	
 	public Vector() {
+		
 		this(0.0f, 0.0f);
+		
 	}
 	
 	public Vector(float x, float y) {
+		
 		this.x = x;
 		this.y = y;
+		
 	}
 
 	public boolean equals(Object other) {
+		
 		if (other == null)
 			return false;
 	    
@@ -36,40 +41,57 @@ public class Vector {
 			return true;
 		
 		return false;
+		
 	}
 	
 	public Vector add(Vector vector) {
+		
 		return new Vector(x + vector.x, y + vector.y);
+		
 	}
 	
 	public Vector sub(Vector vector) {
+		
 		return new Vector(x - vector.x, y - vector.y);
+		
 	}
 	
 	public Vector mul(float scalar) {
+		
 		return new Vector(x * scalar, y * scalar);
+		
 	}
 	
 	public float sqrMagnitude() {
+		
 		return x * x + y * y;
+		
 	}
 	
 	public float magnitude() {
+		
 		return (float) Math.sqrt(sqrMagnitude());
+		
 	}
 	
 	public Vector normalize() {
+		
 		float invMagnitude = 1.0f / magnitude();
 		return mul(invMagnitude);
+		
 	}
 	
 	public static float dot(Vector v1, Vector v2) {
+		
 		return v1.x * v2.x + v1.y * v2.y;
+		
 	}
 	
 	public Vector project(Vector vector) {
+		
 		float projection = dot(this, vector);
 		return vector.normalize().mul(projection);
+		
 	}
 
 }

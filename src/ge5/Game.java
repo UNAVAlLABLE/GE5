@@ -20,7 +20,6 @@ public abstract class Game {
 		init();
 		
 		input = new Input(this);
-				
 		window = new Window(this, input, title, width, height);
 				
 		start();
