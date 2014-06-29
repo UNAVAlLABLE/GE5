@@ -67,9 +67,9 @@ public class Vector {
 		return v1.x * v2.x + v1.y * v2.y;
 	}
 	
-	public static Vector project(Vector v1, Vector v2) {
-		float projection = dot(v1, v2);
-		return v2.normalize().mul(projection);
+	public Vector project(Vector vector) {
+		float projection = dot(this, vector);
+		return vector.normalize().mul(projection);
 	}
 
 }
