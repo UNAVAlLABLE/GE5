@@ -59,7 +59,7 @@ public class Vector {
 	}
 	
 	public Vector normalize() {
-		float invMagnitude = magnitude();
+		float invMagnitude = 1.0f / magnitude();
 		return mul(invMagnitude);
 	}
 	
