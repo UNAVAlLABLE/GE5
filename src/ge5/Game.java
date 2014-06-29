@@ -12,6 +12,9 @@ public abstract class Game {
 	
 	protected final Window window;
 	protected final Input input;
+	
+	protected MapManager map;
+	protected Camera camera;
 
 	protected boolean isRunning = true;
 	
@@ -19,9 +22,13 @@ public abstract class Game {
 		
 		init();
 		
-		input = new Input(this);
-		window = new Window(this, input, title, width, height);
-				
+		input = new Input();
+		
+		camera = new Camera(Vector.zero, 10, (float) width / height);
+		map = new MapManager(camera);
+		
+		window = new Window(this, input, title, width, height, map);
+						
 		start();
 		
 		gameLoop();
@@ -42,14 +49,14 @@ public abstract class Game {
 			accumulatedTime += now - lastTime;
 			
 			lastTime = now;
-	
-			if (accumulatedTime >= fixedTickTime) {
 				
-				System.out.println("Tick");
-					
+			if (accumulatedTime >= fixedTickTime) {
+																	
 				tick((int) (accumulatedTime / fixedTickTime));
 				
 				window.renderGame();
+				
+				input.clear();
 								
 				accumulatedTime = accumulatedTime - fixedTickTime * (accumulatedTime / fixedTickTime);
 	

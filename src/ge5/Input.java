@@ -6,16 +6,21 @@ package ge5;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 
-public class Input implements KeyListener {
+public class Input implements KeyListener, MouseWheelListener {
+		
+	private int scrollWheelAxis = 0;
+		
+	protected Input() {}
 	
+	protected void clear() {
+		scrollWheelAxis = 0;
+	}
 	
-	Game game;
-	
-	Input(Game game) {
-	
-		this.game = game;
-	
+	public int getMouseWheelAxis() {
+		return scrollWheelAxis;
 	}
 
 	@Override
@@ -31,6 +36,11 @@ public class Input implements KeyListener {
 	@Override
 	public void keyTyped(KeyEvent e) {
 		
+	}
+
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent e) {
+		scrollWheelAxis -= e.getWheelRotation();
 	}
 
 }

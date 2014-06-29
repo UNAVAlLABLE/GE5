@@ -6,15 +6,17 @@ public class TestGame extends Game {
 
 	protected void init() {
 		
-		width = 400;
-		height = 300;
-		tickRate = 1;
+		width = 1280;
+		height = 720;
+		tickRate = 60;
 				
 	}
 
 	protected void start() {}
 
 	protected void tick(int skips) {
+		
+		camera.height -= input.getMouseWheelAxis() * 0.5f;
 		
 	}
 

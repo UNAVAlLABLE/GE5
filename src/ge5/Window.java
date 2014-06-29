@@ -5,21 +5,22 @@ import java.awt.Frame;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-public class Window extends Frame{
+public class Window extends Frame {
 	
 	private static final long serialVersionUID = 1L;
 	
 	private GameRender render;
 			    
-    Window(Game game, Input input, String title, int width, int height) {
+    Window(Game game, Input input, String title, int width, int height, MapManager map) {
     	
     	setTitle(title);
 		setIgnoreRepaint(true);
 		setResizable(false);
 		addKeyListener(input);
+		addMouseWheelListener(input);
 		setBackground(Color.black);	
 		
-		render = new GameRender(width, height);
+		render = new GameRender(width, height, map);
 		add(render);
 		
 		pack();
@@ -44,9 +45,7 @@ public class Window extends Frame{
 	}
     
     void renderGame(){
-    	
-    	System.out.println("Render");
-    	
+    	    	
     	render.render();
     	
     }
