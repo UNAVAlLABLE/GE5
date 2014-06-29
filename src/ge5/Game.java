@@ -31,14 +31,14 @@ public abstract class Game {
 
 	protected void gameLoop() {
 
-		long fixedTickTime = (1000L / tickRate);
+		long fixedTickTime = (1000000000L / tickRate);
 		long accumulatedTime = fixedTickTime;
 		long now; 
-		long lastTime = System.currentTimeMillis();
+		long lastTime = System.nanoTime();
 
 		while (isRunning) {
 			
-			now = System.currentTimeMillis();
+			now = System.nanoTime();
 			
 			accumulatedTime += now - lastTime;
 			
