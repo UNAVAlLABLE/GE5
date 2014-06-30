@@ -6,7 +6,7 @@ public class Entity {
 	
 	public int ID;
 	
-	Entity(){
+	public Entity() {
 		
 		ID = IDCounter++;
 			

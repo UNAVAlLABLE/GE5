@@ -24,7 +24,7 @@ public abstract class Game {
 		
 		input = new Input();
 		
-		camera = new Camera(Vector.zero, 10, (float) width / height);
+		camera = new Camera(Vector.zero, 10, width, height);
 		map = new MapManager(camera);
 		
 		window = new Window(this, input, title, width, height, map);
