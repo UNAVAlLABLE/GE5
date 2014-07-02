@@ -11,6 +11,7 @@ import java.awt.Graphics2D;
 public class MapManager {
 	
 	private Camera camera;
+	private TextureManager textureManager;
 	
 	private Tile[][] tiles;
 	
@@ -30,6 +31,9 @@ public class MapManager {
 		this.camera = camera;
 		camera.setMap(this);
 		
+		textureManager = new TextureManager(2);
+		textureManager.loadTexture("grass.jpg", 0);
+		
 		width = 3;
 		height = 3;
 		halfWidth = width / 2.0f;
@@ -37,15 +41,15 @@ public class MapManager {
 		
 		tiles = new Tile[width][height];
 		
-		tiles[0][0] = new Tile(Color.GREEN.getRGB());
-		tiles[0][1] = new Tile(Color.ORANGE.getRGB());
-		tiles[0][2] = new Tile(Color.GRAY.getRGB());
-		tiles[1][0] = new Tile(Color.BLUE.getRGB());
-		tiles[1][1] = new Tile(Color.PINK.getRGB());
-		tiles[1][2] = new Tile(Color.CYAN.getRGB());
-		tiles[2][0] = new Tile(Color.GRAY.getRGB());
-		tiles[2][1] = new Tile(Color.BLUE.getRGB());
-		tiles[2][2] = new Tile(Color.GREEN.getRGB());
+		tiles[0][0] = new Tile(0);
+		tiles[0][1] = new Tile(0);
+		tiles[0][2] = new Tile(0);
+		tiles[1][0] = new Tile(0);
+		tiles[1][1] = new Tile(0);
+		tiles[1][2] = new Tile(0);
+		tiles[2][0] = new Tile(0);
+		tiles[2][1] = new Tile(0);
+		tiles[2][2] = new Tile(0);
 		
 		setTileDimensions();
 		
@@ -63,12 +67,10 @@ public class MapManager {
 				
 //				g.drawImage(img, null, 0, 0);
 				
-				g.setColor(new Color(tiles[i][j].color, true));
-				
 				int x = (int) (tileWidth * (i - halfWidth) + camera.halfScreenWidth);
 				int y = (int) (tileHeight * (j - halfHeight) + camera.halfScreenHeight);
 				
-				g.fillRect(x, y, tileWidth, tileHeight);
+				g.drawImage(textureManager.textures[tiles[i][j].textureID], null, x, y);
 			
 			}
 			

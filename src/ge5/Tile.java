@@ -5,9 +5,12 @@ package ge5;
 public class Tile {
 
 	public int color;
+	public int textureID;
 	
-	public Tile(int color) {
-		this.color = color;
+	public Tile(int textureID) {
+		
+		this.textureID = textureID;
+	
 	}
 
 }
