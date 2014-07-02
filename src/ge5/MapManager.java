@@ -6,23 +6,24 @@ package ge5;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+//import java.awt.image.BufferedImage;
 
 public class MapManager {
 	
 	private Camera camera;
 	
-	// Tile size is 1x1 in map space
 	private Tile[][] tiles;
 	
 	private int width;
 	private int height;
 	
-	// Just so it doesn't have to be calculated every frame
 	private float halfWidth;
 	private float halfHeight;
 	
 	private int tileWidth;
 	private int tileHeight;
+	
+//	private BufferedImage img;
 	
 	protected MapManager(Camera camera) {
 		
@@ -36,11 +37,11 @@ public class MapManager {
 		
 		tiles = new Tile[width][height];
 		
-		tiles[0][0] = new Tile(Color.BLUE.getRGB());
-		tiles[0][1] = new Tile(Color.GREEN.getRGB());
-		tiles[0][2] = new Tile(Color.ORANGE.getRGB());
-		tiles[1][0] = new Tile(Color.BLACK.getRGB());
-		tiles[1][1] = new Tile(Color.WHITE.getRGB());
+		tiles[0][0] = new Tile(Color.GREEN.getRGB());
+		tiles[0][1] = new Tile(Color.ORANGE.getRGB());
+		tiles[0][2] = new Tile(Color.GRAY.getRGB());
+		tiles[1][0] = new Tile(Color.BLUE.getRGB());
+		tiles[1][1] = new Tile(Color.PINK.getRGB());
 		tiles[1][2] = new Tile(Color.CYAN.getRGB());
 		tiles[2][0] = new Tile(Color.GRAY.getRGB());
 		tiles[2][1] = new Tile(Color.BLUE.getRGB());
@@ -48,9 +49,9 @@ public class MapManager {
 		
 		setTileDimensions();
 		
-		long start = System.nanoTime();
-		interpolate();
-		System.out.println((System.nanoTime() - start) / 10000000.0f);
+//		img = new BufferedImage(tileWidth * width, tileHeight * height, BufferedImage.TYPE_INT_ARGB);
+//		
+//		img.setRGB(0, 0, width * tileWidth, height * tileHeight, interpolate(), 0, width * tileWidth);
 		
 	}
 	
@@ -59,6 +60,8 @@ public class MapManager {
 		for (int i = 0; i < tiles.length; i++) {
 			
 			for (int j = 0; j < tiles[0].length; j++) {
+				
+//				g.drawImage(img, null, 0, 0);
 				
 				g.setColor(new Color(tiles[i][j].color, true));
 				
@@ -73,9 +76,6 @@ public class MapManager {
 	
 	}
 	
-	// Called whenever tile screen size should change
-	// I don't like the way this method is called right now (from the camera class)
-	// But it's better than calling every frame
 	protected void setTileDimensions() {
 				
 		float height = camera.getHeight();
@@ -85,161 +85,238 @@ public class MapManager {
 	
 	}
 	
-	
-	// Bilinear interpolation between tile colors
-	// High priority potential bottle-neck (if used every frame, of course)
-	// OPTIMIZE!!!
-	
-	// This only looks at the neighboring 4 tiles
-	// It can be extended to look at 8 tiles, but then the formula gets a little more complicated
-	
-	// Not using Vector class to avoid any associated overhead
-	// Trying to stick to primitives
-	
-	// Very repetitive code, could probably be condensed
-	
-	// Note: code is incomplete at the moment
-	// There are still some special cases like the outer tiles
-	// Also... this method wasn't tested yet
-	private void interpolate() {
-		
-		int[] pixels = new int[width * height * tileWidth * tileHeight];
-		
-		// Local center common to all tiles
-		int localTileCenterX = tileWidth / 2;
-		int localTileCenterY = tileHeight / 2;
-		
-		for (int i = 1; i < tiles.length - 1; i++) {
-			
-			for (int j = 1; j < tiles[0].length - 1; j++) {
-				
-				// Center of tile in pixels
-				int tileCenterX = i * tileWidth + localTileCenterX;
-				int tileCenterY = i * tileHeight + localTileCenterY;
-								
-				for (int x = 0; x < localTileCenterX; x++) {
-					
-					int x1 = (i - 1) * tileWidth + localTileCenterX;
-					int x2 = tileCenterX;
-					
-					for (int y = 0; y < localTileCenterY; y++) {
-						
-						int pixelX = i * tileWidth + x;
-						int pixelY = j * tileHeight + y;
-						
-						int y1 = (j - 1) * tileHeight + localTileCenterY;
-						int y2 = tileCenterY;
-						
-						int divisor = (x2 - x1) * (y2 - y1);
-						
-						int Q11 = tiles[i - 1][j - 1].color;
-						int Q21 = tiles[i][j - 1].color;
-						int Q12 = tiles[i - 1][j + 1].color;
-						int Q22 = tiles[i][j].color;
-						
-						// Implementation of formula copied from wikipedia :)
-						float newColor = Q11 * (x2 - pixelX) * (y2 - pixelY);
-						newColor += Q21 * (pixelX - x1) * (y2 - pixelY);
-						newColor += Q12 * (x2 - pixelX) * (pixelY - y1);
-						newColor += Q22 * (pixelX - x1) * (pixelY - y1);
-						
-						newColor = newColor / divisor;
-						
-						pixels[pixelX + pixelY * tileWidth * width] = (int) newColor;
-						
-					}
-					
-					for (int y = localTileCenterY + 1; y < tileHeight; y++) {
-												
-						int pixelX = i * tileWidth + x;
-						int pixelY = j * tileHeight + y;
-						
-						int y1 = tileCenterY;
-						int y2 = (j + 1) * tileHeight + localTileCenterY;
-						
-						int divisor = (x2 - x1) * (y2 - y1);
-						
-						int Q11 = tiles[i - 1][j].color;
-						int Q21 = tiles[i][j].color;
-						int Q12 = tiles[i - 1][j + 1].color;
-						int Q22 = tiles[i][j + 1].color;
-						
-						float newColor = Q11 * (x2 - pixelX) * (y2 - pixelY);
-						newColor += Q21 * (pixelX - x1) * (y2 - pixelY);
-						newColor += Q12 * (x2 - pixelX) * (pixelY - y1);
-						newColor += Q22 * (pixelX - x1) * (pixelY - y1);
-						
-						newColor = newColor / divisor;
-						
-						pixels[pixelX + pixelY * tileWidth * width] = (int) newColor;
-						
-					}
-					
-				}
-				
-				for (int x = localTileCenterX + 1; x < tileWidth; x++) {
-					
-					int x1 = tileCenterX;
-					int x2 = (i + 1) * tileWidth + localTileCenterX;
-					
-					for (int y = 0; y < localTileCenterY; y++) {
-						
-						int pixelX = i * tileWidth + x;
-						int pixelY = j * tileHeight + y;
-						
-						int y1 = (j - 1) * tileHeight + localTileCenterY;
-						int y2 = tileCenterY;
-						
-						int divisor = (x2 - x1) * (y2 - y1);
-						
-						int Q11 = tiles[i][j - 1].color;
-						int Q21 = tiles[i + 1][j - 1].color;
-						int Q12 = tiles[i][j + 1].color;
-						int Q22 = tiles[i + 1][j].color;
-						
-						float newColor = Q11 * (x2 - pixelX) * (y2 - pixelY);
-						newColor += Q21 * (pixelX - x1) * (y2 - pixelY);
-						newColor += Q12 * (x2 - pixelX) * (pixelY - y1);
-						newColor += Q22 * (pixelX - x1) * (pixelY - y1);
-						
-						newColor = newColor / divisor;
-						
-						pixels[pixelX + pixelY * tileWidth * width] = (int) newColor;
-						
-					}
-					
-					for (int y = localTileCenterY + 1; y < tileHeight; y++) {
-						
-						int pixelX = i * tileWidth + x;
-						int pixelY = j * tileHeight + y;
-						
-						int y1 = tileCenterY;
-						int y2 = (j + 1) * tileHeight + localTileCenterY;
-						
-						int divisor = (x2 - x1) * (y2 - y1);
-						
-						int Q11 = tiles[i][j].color;
-						int Q21 = tiles[i + 1][j].color;
-						int Q12 = tiles[i][j + 1].color;
-						int Q22 = tiles[i + 1][j + 1].color;
-						
-						float newColor = Q11 * (x2 - pixelX) * (y2 - pixelY);
-						newColor += Q21 * (pixelX - x1) * (y2 - pixelY);
-						newColor += Q12 * (x2 - pixelX) * (pixelY - y1);
-						newColor += Q22 * (pixelX - x1) * (pixelY - y1);
-						
-						newColor = newColor / divisor;
-						
-						pixels[pixelX + pixelY * tileWidth * width] = (int) newColor;
-						
-					}
-					
-				}
-							
-			}
-			
-		}
-		
-	}
+//	private int[] interpolate() {
+//		
+//		int[] pixels = new int[width * height * tileWidth * tileHeight];
+//		
+//		int localTileCenterX = tileWidth / 2;
+//		int localTileCenterY = tileHeight / 2;
+//		
+//		int pixelX, pixelY;
+//		int x1, x2, y1, y2;
+//		int up, down, left, right;
+//		int Q11, Q21, Q12, Q22;
+//		
+//		int i, j, x, y;
+//		
+//		for (i = 0; i < tiles.length; i++) {
+//						
+//			for (j = 0; j < tiles[0].length; j++) {
+//								
+//				if (i == 0)
+//					left = i;
+//				else
+//					left = i - 1;
+//				
+//				if (j == 0)
+//					up = j;
+//				else
+//					up = j - 1;
+//				
+//				right = i;
+//				down = j;
+//				
+//				x1 = left * tileWidth + localTileCenterX;
+//				y1 = up * tileHeight + localTileCenterY;
+//				
+//				x2 = right * tileWidth + localTileCenterX;
+//				y2 = down * tileHeight + localTileCenterY;
+//				
+//				Q11 = tiles[left][up].color;
+//				Q21 = tiles[right][up].color;
+//				Q12 = tiles[left][down].color;
+//				Q22 = tiles[right][down].color;
+//								
+//				for (x = 0; x < localTileCenterX; x++) {
+//					
+//					for (y = 0; y < localTileCenterY; y++) {
+//						
+//						pixelX = i * tileWidth + x;
+//						pixelY = j * tileHeight + y;
+//						
+//						pixels[pixelX + pixelY * tileWidth * width] = (int) interpolateColor(pixelX, pixelY, x1, y1, x2, y2, Q11, Q21, Q12, Q22);
+//						
+//					}
+//					
+//				}
+//				
+//				if (i == 0)
+//					left = i;
+//				else
+//					left = i - 1;
+//				
+//				if (j == tiles[0].length - 1)
+//					down = j;
+//				else
+//					down = j + 1;
+//				
+//				right = i;
+//				up = j;
+//				
+//				x1 = left * tileWidth + localTileCenterX;
+//				y1 = up * tileHeight + localTileCenterY;
+//				
+//				x2 = right * tileWidth + localTileCenterX;
+//				y2 = down * tileHeight + localTileCenterY;
+//				
+//				Q11 = tiles[left][up].color;
+//				Q21 = tiles[right][up].color;
+//				Q12 = tiles[left][down].color;
+//				Q22 = tiles[right][down].color;
+//				
+//				for (x = 0; x < localTileCenterX; x++) {
+//					
+//					for (y = localTileCenterY; y < tileHeight; y++) {
+//												
+//						pixelX = i * tileWidth + x;
+//						pixelY = j * tileHeight + y;
+//						
+//						pixels[pixelX + pixelY * tileWidth * width] = (int) interpolateColor(pixelX, pixelY, x1, y1, x2, y2, Q11, Q21, Q12, Q22);
+//						
+//					}
+//					
+//				}
+//				
+//				if (i == tiles.length - 1)
+//					right = i;
+//				else
+//					right = i + 1;
+//				
+//				if (j == 0)
+//					up = j;
+//				else
+//					up = j - 1;
+//				
+//				left = i;
+//				down = j;
+//				
+//				x1 = left * tileWidth + localTileCenterX;
+//				y1 = up * tileHeight + localTileCenterY;
+//				
+//				x2 = right * tileWidth + localTileCenterX;
+//				y2 = down * tileHeight + localTileCenterY;
+//				
+//				Q11 = tiles[left][up].color;
+//				Q21 = tiles[right][up].color;
+//				Q12 = tiles[left][down].color;
+//				Q22 = tiles[right][down].color;
+//				
+//				for (x = localTileCenterX; x < tileWidth; x++) {
+//					
+//					for (y = 0; y < localTileCenterY; y++) {
+//						
+//						pixelX = i * tileWidth + x;
+//						pixelY = j * tileHeight + y;
+//						
+//						pixels[pixelX + pixelY * tileWidth * width] = (int) interpolateColor(pixelX, pixelY, x1, y1, x2, y2, Q11, Q21, Q12, Q22);
+//						
+//					}
+//				
+//				}
+//					
+//				if (i == tiles.length - 1)
+//					right = i;
+//				else
+//					right = i + 1;
+//				
+//				if (j == tiles[0].length - 1)
+//					down = j;
+//				else
+//					down = j + 1;
+//				
+//				left = i;
+//				down = j;
+//				
+//				x1 = left * tileWidth + localTileCenterX;
+//				y1 = up * tileHeight + localTileCenterY;
+//				
+//				x2 = right * tileWidth + localTileCenterX;
+//				y2 = down * tileHeight + localTileCenterY;
+//				
+//				Q11 = tiles[left][up].color;
+//				Q21 = tiles[right][up].color;
+//				Q12 = tiles[left][down].color;
+//				Q22 = tiles[right][down].color;
+//				
+//				for (x = localTileCenterX; x < tileWidth; x++) {
+//				
+//					for (y = localTileCenterY; y < tileHeight; y++) {
+//						
+//						pixelX = i * tileWidth + x;
+//						pixelY = j * tileHeight + y;
+//						
+//						pixels[pixelX + pixelY * tileWidth * width] = (int) interpolateColor(pixelX, pixelY, x1, y1, x2, y2, Q11, Q21, Q12, Q22);
+//						
+//					}
+//					
+//				}
+//				
+//			}
+//			
+//		}
+//		
+//		return pixels;
+//		
+//	}
+//	
+//	private float interpolateColor(int x, int y, int x1, int y1, int x2, int y2, int Q11, int Q21, int Q12, int Q22) {
+//		
+//		int R11 = (Q11 & 0x00FF0000) >> 16;
+//		int R21 = (Q21 & 0x00FF0000) >> 16;
+//		int R12 = (Q12 & 0x00FF0000) >> 16;
+//		int R22 = (Q22 & 0x00FF0000) >> 16;
+//					
+//		int r = (int) interpolateBilinear(x, y, x1, x2, y1, y2, R11, R21, R12, R22);
+//		
+//		int G11 = (Q11 & 0x0000FF00) >> 8;
+//		int G21 = (Q21 & 0x0000FF00) >> 8;
+//		int G12 = (Q12 & 0x0000FF00) >> 8;
+//		int G22 = (Q22 & 0x0000FF00) >> 8;
+//					
+//		int g = (int) interpolateBilinear(x, y, x1, x2, y1, y2, G11, G21, G12, G22);
+//		
+//		int B11 = (Q11 & 0x000000FF);
+//		int B21 = (Q21 & 0x000000FF);
+//		int B12 = (Q12 & 0x000000FF);
+//		int B22 = (Q22 & 0x000000FF);
+//					
+//		int b = (int) interpolateBilinear(x, y, x1, x2, y1, y2, B11, B21, B12, B22);
+//						
+//		return (r << 16) | (g << 8) | b | 0xFF000000;
+//		
+//	}
+//	
+//	private float interpolateBilinear(int x, int y, int x1, int y1, int x2, int y2, int Q11, int Q21, int Q12, int Q22) {
+//				
+//		if (x1 == x2 && y1== y2)
+//			return 0;
+//
+//		if (x1 == x2) {
+//			return 0;
+//			//return Q11 + (Q12 - Q11) * (y - y1) / (y2 - y1);
+//		}
+//	
+//		if (y1 == y2) {
+//			return 0;
+//			//return Q12 + (Q22 - Q12) * (x - x1) / (x2 - x1);
+//		}
+//		int divisor = (x2 - x1) * (y2 - y1);
+//		
+//		int deltaX1 = x - x1;
+//		int deltaY1 = y - y1;
+//		
+//		int deltaX2 = x2 - x;
+//		int deltaY2 = y2 - y;
+//		
+//		float newColor = Q11 * deltaX2 * deltaY2;
+//		newColor += Q21 * deltaX1 * deltaY2;
+//		newColor += Q12 * deltaX2 * deltaY1;
+//		newColor += Q22 * deltaX1 * deltaY1;
+//				
+//		newColor /= divisor;
+//				
+//		return newColor;
+//		
+//	}
 	
 }

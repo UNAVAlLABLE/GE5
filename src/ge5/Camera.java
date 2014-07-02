@@ -7,7 +7,6 @@ public class Camera {
 	protected int screenWidth;
 	protected int screenHeight;
 	
-	// To avoid calculating every frame
 	protected int halfScreenWidth;
 	protected int halfScreenHeight;
 	
