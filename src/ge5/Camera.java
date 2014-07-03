@@ -13,9 +13,7 @@ public class Camera {
 	protected float ratio;
 	
 	private float height;
-	
-	private MapManager map;
-	
+		
 	protected Camera(Vector position, float height, int screenWidth, int screenHeight) {
 		
 		this.position = position;
@@ -30,10 +28,6 @@ public class Camera {
 		
 	}
 	
-	protected void setMap(MapManager map) {
-		this.map = map;
-	}
-	
 	public float getHeight() {
 		return height;
 	}
@@ -41,21 +35,18 @@ public class Camera {
 	public void setHeight(float height) {
 		if (this.height != height) {
 			this.height = height;
-			map.setTileDimensions();
 		}
 	}
 	
 	public void addHeight(float amount) {
 		if (amount != 0) {
 			height += amount;
-			map.setTileDimensions();
 		}
 	}
 	
 	public void subHeight(float amount) {
 		if (amount != 0) {
 			height -= amount;
-			map.setTileDimensions();
 		}
 	}
 	

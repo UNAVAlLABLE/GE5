@@ -6,8 +6,8 @@ public class TestGame extends Game {
 
 	protected void init() {
 		
-		width = 1280;
-		height = 720;
+		width = 1024;
+		height = 768;
 		tickRate = 60;
 				
 	}
