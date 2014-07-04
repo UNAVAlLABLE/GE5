@@ -13,13 +13,10 @@ public class MapManager {
 	private TextureManager textureManager;
 	
 	private Tile[][] tiles;
-	private final int tileSize;
+	private final int tileSize = 32;
 	
 	private int width;
 	private int height;
-	
-	private int halfWidth;
-	private int halfHeight;
 	
 	private BufferedImage map;
 		
@@ -31,13 +28,9 @@ public class MapManager {
 		textureManager.loadTexture("grass.jpg", 0);
 		textureManager.loadTexture("sand.jpg", 1);
 		textureManager.loadBlendMap("bt1.bmp", 0);
-		
-		tileSize = textureManager.textureSize;
-		
+				
 		width = 3;
 		height = 3;
-		halfWidth = width / 2;
-		halfHeight = height / 2;
 		
 		tiles = new Tile[width][height];
 		
@@ -53,54 +46,40 @@ public class MapManager {
 		
 		map = new BufferedImage(width * tileSize, height * tileSize, BufferedImage.TYPE_INT_RGB);
 		blendTiles();
+		
+		camera.setHeight(2);
+		camera.translate(-map.getWidth() / 2, -map.getHeight() / 2);
 				
 	}
 	
 	protected void render(Graphics2D g) {
-				
-		for (int i = 0; i < tiles.length; i++) {
-			
-			for (int j = 0; j < tiles[0].length; j++) {
-				
-				g.drawImage(map, null, camera.halfScreenWidth - map.getWidth() / 2, camera.halfScreenHeight - map.getHeight() / 2);
-			
-			}
-			
-		}
 	
+		g.drawRenderedImage(map, camera.transform);
+		
 	}
 	
-	// Doesn't do exactly what we want yet
-	// Only works if blend map has exact same resolution as texture
 	private void blendTiles() {
 		
 		Graphics2D g = map.createGraphics();
-		
-		int blendMapSize = textureManager.blendMapSize;
-		
+				
 		int pixels[] = map.getRGB(0, 0, map.getWidth(), map.getHeight(), null, 0, map.getWidth());
-		int blendMap[] = textureManager.blendMaps[0];
 		
-		for (int i = 0; i < tiles.length; i++) {
+		int textureSize = textureManager.textureSize;
+		
+		for (int i = 0; i < width; i++) {
 			
-			for (int j = 0; j < tiles[0].length; j++) {
+			for (int j = 0; j < height; j++) {
 			
 				int texture[] = textureManager.textures[tiles[i][j].textureID];
 				
-				int startX = i * tileSize - (blendMapSize - tileSize) / 2;
-				int startY = j * tileSize - (blendMapSize - tileSize) / 2;
+				int startX = i * tileSize;
+				int startY = j * tileSize;
 				
-				for (int x = 0; x < blendMapSize; x++) {
+				for (int x = 0; x < tileSize; x++) {
 					
-					for (int y = 0; y < blendMapSize; y++) {
+					for (int y = 0; y < tileSize; y++) {
 						
-						int index = startX + x + (startY + y) * map.getWidth();
-						
-						if (blendMap[x + y * blendMapSize] == 0) {
-							
-							pixels[index] = texture[x + y * blendMapSize];
-							
-						}
+						pixels[startX + x + (startY + y) * map.getWidth()] = texture[x + (textureSize - tileSize) / 2 + (y + (textureSize - tileSize) / 2) * textureSize];
 						
 					}
 					
@@ -108,6 +87,116 @@ public class MapManager {
 			
 			}
 		
+		}
+		
+
+		for (int i = 0; i < width; i++) {
+			
+			for (int j = 0; j < height; j++) {
+			
+				if (tiles[i][j].textureID == 0) {
+			
+					int texture[] = textureManager.textures[tiles[i][j].textureID];
+					int blendMap[] = textureManager.blendMaps[0];
+					
+					int startX;
+					int startY;
+					
+					if (i != 0) {
+						
+						startX = i * tileSize - (textureSize - tileSize) / 2;
+						startY = j * tileSize;
+						
+						for (int x = 0; x < (textureSize - tileSize) / 2; x++) {
+							
+							for (int y = 0; y < tileSize; y++) {
+								
+								int index = x + (y + (textureSize - tileSize) / 2) * textureSize;
+								
+								if (blendMap[index] == 0) {
+									
+									pixels[startX + x + (startY + y) * map.getWidth()] = texture[index];
+								
+								}
+								
+							}
+							
+						}
+						
+					}
+					
+					if (j != 0) {
+						
+						startX = i * tileSize;
+						startY = j * tileSize - (textureSize - tileSize) / 2;
+						
+						for (int x = 0; x < tileSize; x++) {
+							
+							for (int y = 0; y < (textureSize - tileSize) / 2; y++) {
+								
+								int index = x + (textureSize - tileSize) / 2 + y * textureSize;
+								
+								if (blendMap[index] == 0) {
+									
+									pixels[startX + x + (startY + y) * map.getWidth()] = texture[index];
+								
+								}
+								
+							}
+							
+						}
+						
+					}
+					
+					if (i != width - 1) {
+						
+						startX = (i + 1) * tileSize;
+						startY = j * tileSize;
+						
+						for (int x = 0; x < (textureSize - tileSize) / 2; x++) {
+							
+							for (int y = 0; y < tileSize; y++) {
+								
+								int index = x + (textureSize + tileSize) / 2 + (y + (textureSize - tileSize) / 2) * textureSize;
+								
+								if (blendMap[index] == 0) {
+									
+									pixels[startX + x + (startY + y) * map.getWidth()] = texture[index];
+								
+								}
+								
+							}
+							
+						}
+						
+					}
+					
+					if (j != height - 1) {
+						
+						startX = i * tileSize;
+						startY = (j + 1) * tileSize;
+						
+						for (int x = 0; x < tileSize; x++) {
+							
+							for (int y = 0; y < (textureSize - tileSize) / 2; y++) {
+								
+								int index = x + (textureSize - tileSize) / 2 + (y + (textureSize + tileSize) / 2) * textureSize;
+								
+								if (blendMap[index] == 0) {
+									
+									pixels[startX + x + (startY + y) * map.getWidth()] = texture[index];
+								
+								}
+								
+							}
+							
+						}
+						
+					}
+					
+				}
+			}
+			
 		}
 		
 		map.setRGB(0, 0, map.getWidth(), map.getHeight(), pixels, 0, map.getWidth());

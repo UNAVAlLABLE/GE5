@@ -28,7 +28,7 @@ public class Window extends Frame {
 		setVisible(true);
 		
 		// Has to be called after setVisible
-		render.createBufferStrategy(2);
+		render.initBufferStrategy();
 		
 		requestFocus();
 		
@@ -45,9 +45,9 @@ public class Window extends Frame {
 	}
     
     void renderGame(){
-    	    	
+
     	render.render();
-    	
+    
     }
 	
 	void center() {

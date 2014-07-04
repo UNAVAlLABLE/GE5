@@ -12,13 +12,14 @@ class GameRender extends Canvas{
 	
     private BufferedImage image;
 	private BufferStrategy bufferStrategy;
-	private Graphics2D g;
+	private Graphics2D g1;
+	private Graphics2D g2;
 	private MapManager map;
 	
 	public int width;
 	public int height;
 
-	GameRender(int width, int height, MapManager map) {
+	protected GameRender(int width, int height, MapManager map) {
 		
 		this.width = width;	
 		this.height = height;
@@ -26,7 +27,7 @@ class GameRender extends Canvas{
 		
 		image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		
-		g = image.createGraphics();
+		g1 = image.createGraphics();
 		
 		setSize(width, height);
 		setIgnoreRepaint(true);
@@ -34,27 +35,28 @@ class GameRender extends Canvas{
 	
 	}
 	
-	void render() {
+	protected void initBufferStrategy() {
 		
+		createBufferStrategy(2);
 		bufferStrategy = getBufferStrategy();
-		g = (Graphics2D) image.getGraphics();
+		g2 = (Graphics2D) bufferStrategy.getDrawGraphics();
 		
+	}
+	
+	protected void render() {
+				
 		//// Image Edited Here //////////////////
 		/////////////////////////////////////////
 		
-		g.setColor(Color.RED);
-		g.fillRect(0, 0, width, height);
-		map.render(g);
+		g1.setColor(Color.RED);
+		g1.fillRect(0, 0, width, height);
+		map.render(g1);
 		
 		/////////////////////////////////////////
 		/////////////////////////////////////////
 		
-		g.dispose();
-		
-		g = (Graphics2D) getBufferStrategy().getDrawGraphics();
-		g.drawImage(image, 0, 0, width , height, null);
+		g2.drawImage(image, 0, 0, width , height, null);
 
-		g.dispose();
 		bufferStrategy.show();
 
 	}

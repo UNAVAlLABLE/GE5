@@ -16,7 +16,7 @@ public class TestGame extends Game {
 
 	protected void tick(int skips) {
 		
-		camera.subHeight(input.getMouseWheelAxis() * 0.5f);
+		camera.addHeight(input.getMouseWheelAxis() * 0.1f);
 		
 	}
 

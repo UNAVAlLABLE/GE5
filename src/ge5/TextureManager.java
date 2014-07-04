@@ -9,7 +9,6 @@ import javax.imageio.ImageIO;
 // Should probably rename this to something else
 public class TextureManager {
 	
-	// Just for now...
 	protected final int textureSize = 64;
 	protected final int blendMapSize = 64;
 	
@@ -68,16 +67,17 @@ public class TextureManager {
 				img = newImg;
 				
 			}
-			
-			int[] blendMap = new int[img.getWidth() * img.getHeight()];
+						
+			int[] blendMap = new int[blendMapSize * blendMapSize];
 			int[] pixels = img.getRGB(0, 0, blendMapSize, blendMapSize, null, 0, blendMapSize);
 			
-			// For easier checks
 			for (int i = 0; i < pixels.length; i++) {
+				
 				if ((pixels[i] & 0x000000FF) == 0)
 					blendMap[i] = 0;
 				else
 					blendMap[i] = 1;
+				
 			}
 			
 			blendMaps[index] = blendMap;
@@ -85,6 +85,7 @@ public class TextureManager {
 		} catch (Exception e) {
 			
 			System.out.println("Failed to load blend map");
+			e.printStackTrace();
 			
 		}
 		

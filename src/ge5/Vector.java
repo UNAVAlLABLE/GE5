@@ -38,6 +38,11 @@ public class Vector {
 		return false;
 	}
 	
+	public void add(int x, int y) {
+		this.x += x;
+		this.y += y;
+	}
+	
 	public Vector add(Vector vector) {
 		return new Vector(x + vector.x, y + vector.y);
 	}

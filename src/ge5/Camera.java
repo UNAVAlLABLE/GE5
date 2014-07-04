@@ -1,30 +1,43 @@
 package ge5;
 
+import java.awt.geom.AffineTransform;
+
 public class Camera {
 	
-	public Vector position;
-	
-	protected int screenWidth;
-	protected int screenHeight;
-	
-	protected int halfScreenWidth;
-	protected int halfScreenHeight;
-	
-	protected float ratio;
-	
+	private Vector position;
 	private float height;
+	private float invHeight;
+	
+	private int halfScreenWidth;
+	private int halfScreenHeight;
 		
-	protected Camera(Vector position, float height, int screenWidth, int screenHeight) {
+	protected AffineTransform transform;
+	
+	protected Camera(Vector position, int screenWidth, int screenHeight) {
 		
 		this.position = position;
-		this.height = height;
-		this.screenWidth = screenWidth;
-		this.screenHeight = screenHeight;
 		
 		halfScreenWidth = screenWidth / 2;
 		halfScreenHeight = screenHeight / 2;
 		
-		ratio = (float) screenWidth / screenHeight;
+		height = invHeight = 1.0f;
+						
+		calculateTransform();
+		
+	}
+	
+	private void calculateTransform() {
+		
+		transform = new AffineTransform();
+		transform.scale(height, height);
+		transform.translate(invHeight * halfScreenWidth + position.x, invHeight * halfScreenHeight + position.y);
+		
+	}
+	
+	public void translate(int x, int y) {
+		
+		position.add(x, y);
+		calculateTransform();
 		
 	}
 	
@@ -33,21 +46,21 @@ public class Camera {
 	}
 	
 	public void setHeight(float height) {
-		if (this.height != height) {
-			this.height = height;
-		}
+		this.height = height;
+		invHeight = 1.0f / height;
+		calculateTransform();
 	}
 	
 	public void addHeight(float amount) {
-		if (amount != 0) {
-			height += amount;
-		}
+		height += amount;
+		invHeight = 1.0f / height;
+		calculateTransform();
 	}
 	
 	public void subHeight(float amount) {
-		if (amount != 0) {
-			height -= amount;
-		}
+		height -= amount;
+		invHeight = 1.0f / height;
+		calculateTransform();
 	}
 	
 }

@@ -24,7 +24,7 @@ public abstract class Game {
 		
 		input = new Input();
 		
-		camera = new Camera(Vector.zero, 10, width, height);
+		camera = new Camera(Vector.zero, width, height);
 		map = new MapManager(camera);
 		
 		window = new Window(this, input, title, width, height, map);
@@ -51,7 +51,7 @@ public abstract class Game {
 			lastTime = now;
 				
 			if (accumulatedTime >= fixedTickTime) {
-																	
+				
 				tick((int) (accumulatedTime / fixedTickTime));
 				
 				window.renderGame();
