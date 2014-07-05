@@ -3,6 +3,9 @@ package testgame;
 import ge5.Game;
 
 public class TestGame extends Game {
+	
+	private float wantedHeight;
+	private float cameraHeight;
 
 	protected void init() {
 		
@@ -12,11 +15,17 @@ public class TestGame extends Game {
 				
 	}
 
-	protected void start() {}
+	protected void start() {
+		
+		cameraHeight = wantedHeight = camera.getHeight();
+
+	}
 
 	protected void tick(int skips) {
 		
-		camera.addHeight(input.getMouseWheelAxis() * 0.1f);
+		wantedHeight += input.getMouseWheelAxis();
+		cameraHeight += 0.15f * (wantedHeight - cameraHeight);
+		camera.setHeight(cameraHeight);
 		
 	}
 

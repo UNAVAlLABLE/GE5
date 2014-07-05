@@ -13,6 +13,8 @@ public class Camera {
 		
 	protected AffineTransform transform;
 	
+	private final float sqrt2 = (float) Math.sqrt(2);
+	
 	protected Camera(Vector position, int screenWidth, int screenHeight) {
 		
 		this.position = position;
@@ -27,7 +29,7 @@ public class Camera {
 	}
 	
 	private void calculateTransform() {
-		
+				
 		transform = new AffineTransform();
 		transform.scale(height, height);
 		transform.translate(invHeight * halfScreenWidth + position.x, invHeight * halfScreenHeight + position.y);
@@ -46,19 +48,19 @@ public class Camera {
 	}
 	
 	public void setHeight(float height) {
-		this.height = height;
-		invHeight = 1.0f / height;
+		this.height = (float) Math.pow(sqrt2, height - 1);
+		invHeight = 1.0f / this.height;
 		calculateTransform();
 	}
 	
 	public void addHeight(float amount) {
-		height += amount;
+		height *= (float) Math.pow(sqrt2, amount);
 		invHeight = 1.0f / height;
 		calculateTransform();
 	}
 	
 	public void subHeight(float amount) {
-		height -= amount;
+		height /= (float) Math.pow(sqrt2, amount);
 		invHeight = 1.0f / height;
 		calculateTransform();
 	}
