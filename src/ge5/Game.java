@@ -26,15 +26,11 @@ public abstract class Game {
 		input = new Input();
 
 		window = new Window(this, input, title, width, height);
-
-	}
-	
-	void startGame  () {
 		
 		start();
 
 		gameLoop();
-		
+
 	}
 
 	private void gameLoop() {
