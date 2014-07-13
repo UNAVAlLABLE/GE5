@@ -1,5 +1,13 @@
 package ge5;
 
-public class Tile {
+public abstract class Tile {
+	
+	void load(){
+		
+	}
+	
+	void unload(){
+		
+	}	
 
 }
