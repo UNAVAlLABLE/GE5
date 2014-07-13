@@ -1,7 +1,3 @@
-// This class is to control input for all input devices.
-// Keys should be updated before each fixed tick and accessible
-// directly from the game classes
-
 package ge5;
 
 import java.awt.event.KeyEvent;
@@ -9,7 +5,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
-public class Input implements KeyListener, MouseWheelListener {
+class Input implements KeyListener, MouseWheelListener {
 		
 	private int scrollWheelAxis = 0;
 		

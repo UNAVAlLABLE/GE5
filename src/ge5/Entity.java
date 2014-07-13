@@ -1,6 +1,6 @@
 package ge5;
 
-public class Entity {
+public abstract class Entity {
 	
 	static int IDCounter = 0;
 	

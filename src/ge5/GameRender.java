@@ -1,10 +1,10 @@
 package ge5;
 
 import java.awt.Canvas;
-import java.awt.Color;
-import java.awt.Graphics2D;
+import java.awt.Graphics;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 
 class GameRender extends Canvas{
 	
@@ -12,52 +12,72 @@ class GameRender extends Canvas{
 	
     private BufferedImage image;
 	private BufferStrategy bufferStrategy;
-	private Graphics2D g1;
-	private Graphics2D g2;
-	private MapManager map;
+	private Graphics graphics;
+	int[] pixels;
 	
-	public int width;
-	public int height;
+	int xOffset = 0;
+	int yOffset = 0;
 
-	protected GameRender(int width, int height, MapManager map) {
+	GameRender(int width, int height) {
 		
-		this.width = width;	
-		this.height = height;
-		this.map = map;
-		
-		image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-		
-		g1 = image.createGraphics();
-		
-		setSize(width, height);
+		setGameSize(width,height);
 		setIgnoreRepaint(true);
-		requestFocus();
 	
 	}
 	
-	protected void initBufferStrategy() {
-		
-		createBufferStrategy(2);
-		bufferStrategy = getBufferStrategy();
-		g2 = (Graphics2D) bufferStrategy.getDrawGraphics();
-		
-	}
-	
-	protected void render() {
-				
-		//// Image Edited Here //////////////////
-		/////////////////////////////////////////
-		
-		g1.setColor(Color.RED);
-		g1.fillRect(0, 0, width, height);
-		map.render(g1);
-		
-		/////////////////////////////////////////
-		/////////////////////////////////////////
-		
-		g2.drawImage(image, 0, 0, width , height, null);
+	void setGameSize(int width, int height){
 
+		image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+		setSize(width, height);	
+				
+	}
+	
+	void render() {
+		
+		bufferStrategy = getBufferStrategy();
+		graphics = bufferStrategy.getDrawGraphics();
+		
+		drawTiles();
+		
+		graphics.drawImage(image, 0, 0, getWidth() , getHeight(), null);
 		bufferStrategy.show();
+		graphics.dispose();
+	}
+	
+	void drawTiles() {
+		
+		int width = image.getWidth();
+		int height = image.getHeight();
+			
+		for(int x = xOffset & -32; x < width; x += 32){
+			for(int y = yOffset & -32; y < height; y += 32){
+				
+			}	
+		}
+				
+	}
+	
+	public int[] scale(int[] pixels, int w1, int h1, int w2, int h2) {
+
+		int[] result = new int[w2 * h2];
+
+		int x1, y1, x2, y2;
+
+		for (x2 = 0; x2 < w2; x2++) {
+
+			for (y2 = 0; y2 < h2; y2++) {
+
+				x1 = x2 * w1 / w2;
+				y1 = y2 * h1 / h2;
+
+				result[x2 + y2 * w2] = pixels[x1 + y1 * w1];
+
+			}
+
+		}
+
+		return result;
 
 	}
 
