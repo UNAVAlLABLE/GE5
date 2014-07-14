@@ -26,11 +26,21 @@ public abstract class Game {
 		input = new Input();
 
 		window = new Window(this, input, title, width, height);
+
+	}
+	
+	void startGame(){
+		
+		scenes = new Scene[GameLoader.scenes.size()];
+		
+		for (int i = 0; i < scenes.length; i++) {
+			scenes[i] = GameLoader.scenes.get(i);
+		}
 		
 		start();
 
 		gameLoop();
-
+		
 	}
 
 	private void gameLoop() {
@@ -39,6 +49,7 @@ public abstract class Game {
 		long accumulatedTime = fixedTickTime;
 		long now;
 		long lastTime = System.nanoTime();
+		int skips;
 
 		while (true) {
 
@@ -49,12 +60,20 @@ public abstract class Game {
 			lastTime = now;
 
 			if (accumulatedTime >= fixedTickTime) {
+				
+				skips = (int) (accumulatedTime / fixedTickTime);
+				
+				if(skips > 1){
+					
+					System.out.println("Skipped " + (skips-1) + " ticks.");
+					
+				}
 
-				tick((int) (accumulatedTime / fixedTickTime));
+				tick(skips);
 
-				if (isPaused == false) {
+				if (isPaused == false && loadedSceneIndex != -1) {
 
-					loadedScene.tick((int) (accumulatedTime / fixedTickTime));
+					loadedScene.tick(skips);
 
 				}
 
@@ -74,16 +93,18 @@ public abstract class Game {
 
 	protected void loadScene(int index) {
 
-		if (index == -1)
+		if (index == -1){
 
 			loadedScene.unload();
+			loadedScene = null;
 			
-			else {
+		} else {
 			
 				loadedScene = scenes[index];
 				loadedScene.load();
 				loadedSceneIndex = index;
-
+				loadedScene.start();
+				
 			}
 
 	}
