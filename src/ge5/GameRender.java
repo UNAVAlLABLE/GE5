@@ -2,6 +2,9 @@ package ge5;
 
 import java.awt.Canvas;
 import java.awt.Graphics;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsEnvironment;
+import java.awt.Transparency;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
@@ -27,7 +30,10 @@ class GameRender extends Canvas{
 	
 	void setGameSize(int width, int height){
 
-		image = new BufferedImage(width + 64, height + 64, BufferedImage.TYPE_INT_RGB);
+		GraphicsConfiguration config = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
+		
+		image = config.createCompatibleImage(width + 64, height + 64, Transparency.OPAQUE);
+		
 		pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 		setSize(width, height);	
 				
