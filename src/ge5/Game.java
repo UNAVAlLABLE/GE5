@@ -15,9 +15,9 @@ public abstract class Game {
 
 	protected boolean isPaused = false;
 
-	Scene[] scenes;
-	Scene loadedScene;
-	int loadedSceneIndex = -1;
+	protected Scene[] scenes;
+	protected Scene loadedScene;
+	protected int loadedSceneIndex = -1;
 
 	protected Game() {
 		
@@ -52,14 +52,16 @@ public abstract class Game {
 
 				tick((int) (accumulatedTime / fixedTickTime));
 
-				if (isPaused = false) {
+				if (isPaused == false) {
 
 					loadedScene.tick((int) (accumulatedTime / fixedTickTime));
 
 				}
 
-				window.renderGame();
-
+				now = System.nanoTime();
+				window.renderGame(loadedScene);
+				System.out.println((System.nanoTime() - now) / 1000000.0f);
+				
 				input.clear();
 
 				accumulatedTime = accumulatedTime - fixedTickTime * (accumulatedTime / fixedTickTime);
@@ -72,11 +74,7 @@ public abstract class Game {
 
 	protected void loadScene(int index) {
 
-		if (loadedSceneIndex == -1)
-			
-			return;
-
-		else if (index == -1)
+		if (index == -1)
 
 			loadedScene.unload();
 			

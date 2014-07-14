@@ -22,36 +22,33 @@ public class GameLauncher extends ClassLoader {
 
 	public static void main(String[] args) {
 				
-		Scene[] scenes;
+//		Scene[] scenes;
 		
-		int numScenes = 0;
+//		int numScenes = 0;
 		
 	    ClassLoader classLoader = new GameLauncher();
 
 	    try {
 	   
-	    	for (String str : args) {
-	    		
-				if (Scene.class.isAssignableFrom(classLoader.loadClass(str)))
-					numScenes++;
-				
-			}
+//	    	for (String str : args) {
+//	    		
+//				if (Scene.class.isAssignableFrom(classLoader.loadClass(str)))
+//					numScenes++;
+//				
+//			}
 	    	
-	    	scenes = new Scene[numScenes];
+//	    	scenes = new Scene[numScenes];
 	    	
 	    	for (int i = 0; i < args.length; i++) {
 	    		
 	    		Class<?> clazz = classLoader.loadClass(args[i]);
 	    	
 				if (Scene.class.isAssignableFrom(clazz)) {
-					scenes[i] = (Scene) clazz.newInstance();
-					System.out.println(clazz.getConstructors().length);
+//					scenes[i] = (Scene) clazz.newInstance();
 				}
 				
 				else if (Game.class.isAssignableFrom(clazz)) {
-					for (int j = 0; j < clazz.getMethods().length; j++) {
-						System.out.println(clazz.getMethods()[j].getName());
-					}
+					clazz.newInstance();
 				}
 					
 			}

@@ -13,14 +13,20 @@ class GameRender extends Canvas{
     private BufferedImage image;
 	private BufferStrategy bufferStrategy;
 	private Graphics graphics;
-	int[] pixels;
+	private int[] pixels;
 	
-	int xOffset = 0;
-	int yOffset = 0;
+	private int width;
+	private int height;
+	
+	private int xOffset = 0;
+	private int yOffset = 0;
 
 	GameRender(int width, int height) {
 		
-		setGameSize(width,height);
+		this.width = width;
+		this.height = height;
+		
+		setGameSize(width, height);
 		setIgnoreRepaint(true);
 	
 	}
@@ -33,27 +39,35 @@ class GameRender extends Canvas{
 				
 	}
 	
-	void render() {
+	void render(Scene scene) {
 		
 		bufferStrategy = getBufferStrategy();
 		graphics = bufferStrategy.getDrawGraphics();
 		
-		drawTiles();
+		drawTiles(scene);
 		
-		graphics.drawImage(image, 0, 0, getWidth() , getHeight(), null);
+		graphics.drawImage(image, 0, 0, width, height, null);
 		bufferStrategy.show();
 		graphics.dispose();
+		
 	}
 	
-	void drawTiles() {
+	void drawTiles(Scene scene) {
 		
-		int width = image.getWidth();
-		int height = image.getHeight();
+		int[] pixels = scene.getPixels();
+		
+		for (int x = 0; x < scene.pixelWidth; x++) {
+			
+			for (int y = 0; y < scene.pixelHeight; y++) {
+				
+				this.pixels[x + y * width] = pixels[x + y * scene.pixelWidth];
+				
+			}
+			
+		}
 			
 		for(int x = xOffset & -32; x < width; x += 32){
-			for(int y = yOffset & -32; y < height; y += 32){
-				
-			}	
+			for(int y = yOffset & -32; y < height; y += 32){}	
 		}
 				
 	}

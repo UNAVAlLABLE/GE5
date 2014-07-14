@@ -42,9 +42,9 @@ class Window extends Frame {
 
 	}
     
-    void renderGame(){
+    void renderGame(Scene scene) {
 
-    	render.render();
+    	render.render(scene);
     
     }
 	
