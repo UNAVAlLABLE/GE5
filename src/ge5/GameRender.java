@@ -1,3 +1,4 @@
+
 package ge5;
 
 import java.awt.Canvas;
@@ -8,61 +9,95 @@ import java.awt.Transparency;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
+import java.util.Arrays;
 
-class GameRender extends Canvas{
-	
+class GameRender extends Canvas {
+
 	private static final long serialVersionUID = 1L;
-	
-    private BufferedImage image;
+
+	private BufferedImage image;
 	private BufferStrategy bufferStrategy;
 	private Graphics graphics;
+	private GraphicsConfiguration config;
 	private int[] pixels;
-	
-	private int xOffset = 0;
-	private int yOffset = 0;
+
+	private int posX = 0;
+	private int posY = 0;
 
 	GameRender(int width, int height) {
-		
-		setGameSize(width, height);
-		setIgnoreRepaint(true);
-	
-	}
-	
-	void setGameSize(int width, int height){
 
-		GraphicsConfiguration config = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
-		
-		image = config.createCompatibleImage(width + 64, height + 64, Transparency.OPAQUE);
-		
-		pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
-		setSize(width, height);	
-				
+		config = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
+		resizeImage(width, height);
+		setSize(width, height);
+		setIgnoreRepaint(true);
+
 	}
 	
-	void render(Scene scene) {
+	Bitmap adf;
+
+	void resizeImage(int width, int height) {
+
+		image = config.createCompatibleImage(width + 64, height + 64, Transparency.OPAQUE);
+		pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 		
+	}
+
+	void render(Scene scene) {
+
 		bufferStrategy = getBufferStrategy();
 		graphics = bufferStrategy.getDrawGraphics();
-		
+
 		drawTiles(scene);
-		
+
 		graphics.drawImage(image, -32, -32, image.getWidth(), image.getHeight(), null);
-		
+
 		bufferStrategy.show();
 		graphics.dispose();
-		
+
 	}
-	
+
 	void drawTiles(Scene scene) {
-			
-		for(int x = xOffset/32 + 1; x < (xOffset + getWidth())/32; x ++){
-			for(int y = yOffset/32 + 1; y < (yOffset + getHeight())/32; y ++){
-				
-			}	
+
+		int xOffset = posX % 32;
+		int yOffset = posY % 32;
+
+		for (int x = posX; x < (posX + (image.getWidth())) / 32; x++) {
+			for (int y = posY; y < (posY + (image.getHeight())) / 32; y++) {
+
+			}
 		}
-				
+
 	}
-	
+
+	void renderBitmap(Bitmap bitmap, int x, int y) {
+
+		int startX = (x < 0) ? 0 : x;
+
+		int startY = (y < 0) ? 0 : y;
+
+		int endX = (x + bitmap.width > image.getWidth()) ? image.getWidth() : bitmap.width + x;
+
+		int endY = (y + bitmap.height > image.getHeight()) ? image.getHeight() : bitmap.height + y;
+
+		for (int yy = startY; yy < endY; yy++) {
+			
+			int tp = yy * image.getWidth() + startX;
+			
+			int sp = (yy - y) * bitmap.width + (startX - x);
+			
+			tp -= sp;
+			
+			for (int xx = sp; xx < sp + (endX - startX); xx++) {
+				
+				int col = bitmap.pixels[xx];
+				pixels[tp + xx] = col;
+				
+			}
+			
+		}
+
+	}
+
 	public int[] scale(int[] pixels, int w1, int h1, int w2, int h2) {
 
 		int[] result = new int[w2 * h2];
