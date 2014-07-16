@@ -2,7 +2,7 @@
 
 package ge5;
 
-public abstract class Game {
+public abstract class Game{
 
 	// Defaults
 	protected String title = "Untitled Game";
@@ -62,12 +62,6 @@ public abstract class Game {
 			if (accumulatedTime >= fixedTickTime) {
 				
 				skips = (int) (accumulatedTime / fixedTickTime);
-				
-				if(skips > 1){
-					
-					System.out.println("Skipped " + (skips-1) + " ticks.");
-					
-				}
 
 				tick(skips);
 
@@ -83,12 +77,52 @@ public abstract class Game {
 				
 				input.clear();
 
-				accumulatedTime = accumulatedTime - fixedTickTime * (accumulatedTime / fixedTickTime);
+				accumulatedTime -= fixedTickTime * skips;
 
 			}
 
 		}
 
+	}
+	
+	// Second game loop that allows 1 second to catch up before skipping ticks
+	private void gameLoop2() {
+		
+		long fixedTickTime = (1000000000L / tickRate);
+		long accumulatedTime = fixedTickTime;
+		long now = System.nanoTime();
+		long lastTime = System.nanoTime();
+		byte skips;
+		
+		while(true){
+			
+			now = System.nanoTime();
+
+			accumulatedTime += now - lastTime;
+
+			lastTime = now;
+			
+			skips = (byte) (1 + accumulatedTime / 1000000000L);
+			
+			while (accumulatedTime >= fixedTickTime) {
+				
+				tick(skips);
+
+				if (isPaused == false && loadedSceneIndex != -1) {
+
+					loadedScene.tick(skips);
+
+				}
+				
+				input.clear();
+				
+				accumulatedTime -= fixedTickTime;
+				
+			}
+			
+		}
+		
+		
 	}
 
 	protected void loadScene(int index) {
