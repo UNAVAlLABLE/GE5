@@ -9,7 +9,6 @@ import java.awt.Transparency;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
-import java.util.Arrays;
 
 class GameRender extends Canvas {
 
@@ -33,8 +32,6 @@ class GameRender extends Canvas {
 
 	}
 	
-	Bitmap adf;
-
 	void resizeImage(int width, int height) {
 
 		image = config.createCompatibleImage(width + 64, height + 64, Transparency.OPAQUE);
@@ -46,9 +43,9 @@ class GameRender extends Canvas {
 
 		bufferStrategy = getBufferStrategy();
 		graphics = bufferStrategy.getDrawGraphics();
-
+				
 		drawTiles(scene);
-
+		
 		graphics.drawImage(image, -32, -32, image.getWidth(), image.getHeight(), null);
 
 		bufferStrategy.show();

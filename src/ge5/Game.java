@@ -39,7 +39,7 @@ public abstract class Game{
 		
 		start();
 
-		gameLoop();
+		gameLoop2();
 		
 	}
 
@@ -64,6 +64,12 @@ public abstract class Game{
 				skips = (int) (accumulatedTime / fixedTickTime);
 
 				tick(skips);
+				
+				if(skips > 1){
+					
+					System.out.println("Skipped " + (skips-1) + " ticks");
+					
+				}
 
 				if (isPaused == false && loadedSceneIndex != -1) {
 
@@ -104,6 +110,12 @@ public abstract class Game{
 			
 			skips = (byte) (1 + accumulatedTime / 1000000000L);
 			
+			if(skips > 1){
+				
+				System.out.println("Skipping " + (skips-1) + " ticks");
+				
+			}
+			
 			while (accumulatedTime >= fixedTickTime) {
 				
 				tick(skips);
@@ -113,6 +125,10 @@ public abstract class Game{
 					loadedScene.tick(skips);
 
 				}
+				
+				now = System.nanoTime();
+				window.renderGame(loadedScene);
+				System.out.println((System.nanoTime() - now) / 1000000.0f);
 				
 				input.clear();
 				
