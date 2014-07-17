@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 public class GameLoader{
 	
-	ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+	static ClassLoader classLoader = ClassLoader.getSystemClassLoader();
 	
 	static Game game;
 	static ArrayList<Tile> tiles = new ArrayList<Tile>();
@@ -47,8 +47,8 @@ public class GameLoader{
 	}
 	
 	// Can be used to load images, sound, maps ... from a file
-	public InputStream getFileData(String path) {
-
+	public static InputStream getFileData(String path) {
+		
 		return classLoader.getResourceAsStream(path);
 		
 	}

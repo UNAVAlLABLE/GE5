@@ -1,8 +1,12 @@
 package ge5;
 
 import java.awt.Frame;
+import java.awt.Image;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
 
 class Window extends Frame {
 	
@@ -19,6 +23,8 @@ class Window extends Frame {
 		
 		addKeyListener(input);
 		addMouseWheelListener(input);
+		
+		setWindowIcon("icon.bmp");
 		
 		render = new GameRender(width, height);
 		add(render);
@@ -41,6 +47,21 @@ class Window extends Frame {
 		});
 
 	}
+    
+    void setWindowIcon(String path){
+    	
+		try {
+				
+			setIconImage(ImageIO.read(GameLoader.getFileData(path)));
+				
+		} catch (Exception e) {
+			
+			System.out.println("Failed to load " + path + " as frame icon: " + e.getMessage());
+				
+		}
+
+    	
+    }
     
     void renderGame(Scene scene) {
 
