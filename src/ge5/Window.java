@@ -1,10 +1,8 @@
 package ge5;
 
 import java.awt.Frame;
-import java.awt.Image;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
@@ -60,7 +58,6 @@ class Window extends Frame {
 				
 		}
 
-    	
     }
     
     void renderGame(Scene scene) {

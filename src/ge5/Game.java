@@ -15,7 +15,9 @@ public abstract class Game{
 
 	protected boolean isPaused = false;
 
+	// TODO Change this into a hashtable (here and in GameLoader) for better class identification
 	protected Scene[] scenes;
+	
 	protected Scene loadedScene;
 	protected int loadedSceneIndex = -1;
 
@@ -98,7 +100,7 @@ public abstract class Game{
 		long accumulatedTime = fixedTickTime;
 		long now = System.nanoTime();
 		long lastTime = System.nanoTime();
-		byte skips;
+		int skips;
 		
 		while(true){
 			
@@ -108,7 +110,7 @@ public abstract class Game{
 
 			lastTime = now;
 			
-			skips = (byte) (1 + accumulatedTime / 1000000000L);
+			skips = (int) (1 + accumulatedTime / 1000000000);
 			
 			if(skips > 1){
 				
@@ -133,7 +135,7 @@ public abstract class Game{
 				input.clear();
 				
 				accumulatedTime -= fixedTickTime;
-				
+								
 			}
 			
 		}

@@ -5,11 +5,11 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
-class Input implements KeyListener, MouseWheelListener {
+public class Input implements KeyListener, MouseWheelListener {
 		
 	private int scrollWheelAxis = 0;
 	
-	public static boolean up, down, left, right, space;
+	public boolean up, down, left, right, space;
 		
 	protected Input() {}
 	
@@ -26,19 +26,19 @@ class Input implements KeyListener, MouseWheelListener {
 		
 		int keyCode = e.getKeyCode();
 
-		if (keyCode == e.VK_UP || keyCode == e.VK_W)
+		if (keyCode == KeyEvent.VK_UP || keyCode == KeyEvent.VK_W)
 			up = true;
 
-		if (keyCode == e.VK_DOWN || keyCode == e.VK_S)
+		if (keyCode == KeyEvent.VK_DOWN || keyCode == KeyEvent.VK_S)
 			down = true;
 
-		if (keyCode == e.VK_LEFT || keyCode == e.VK_A)
+		if (keyCode == KeyEvent.VK_LEFT || keyCode == KeyEvent.VK_A)
 			left = true;
 
-		if (keyCode == e.VK_RIGHT || keyCode == e.VK_D)
+		if (keyCode == KeyEvent.VK_RIGHT || keyCode == KeyEvent.VK_D)
 			right = true;
 
-		if (keyCode == e.VK_SPACE)
+		if (keyCode == KeyEvent.VK_SPACE)
 			space = true;
 
 	}
@@ -48,19 +48,19 @@ class Input implements KeyListener, MouseWheelListener {
 		
 		int keyCode = e.getKeyCode();
 
-		if (keyCode == e.VK_UP || keyCode == e.VK_W)
+		if (keyCode == KeyEvent.VK_UP || keyCode == KeyEvent.VK_W)
 			up = false;
 
-		if (keyCode == e.VK_DOWN || keyCode == e.VK_S)
+		if (keyCode == KeyEvent.VK_DOWN || keyCode == KeyEvent.VK_S)
 			down = false;
 
-		if (keyCode == e.VK_LEFT || keyCode == e.VK_A)
+		if (keyCode == KeyEvent.VK_LEFT || keyCode == KeyEvent.VK_A)
 			left = false;
 
-		if (keyCode == e.VK_RIGHT || keyCode == e.VK_D)
+		if (keyCode == KeyEvent.VK_RIGHT || keyCode == KeyEvent.VK_D)
 			right = false;
 
-		if (keyCode == e.VK_SPACE)
+		if (keyCode == KeyEvent.VK_SPACE)
 			space = false;
 
 	}

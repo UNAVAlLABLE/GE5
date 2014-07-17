@@ -1,6 +1,8 @@
 package game;
 
-public class TestGame extends ge5.Game {
+import ge5.*;
+
+public class TestGame extends Game {
 
 	protected void init() {
 						
