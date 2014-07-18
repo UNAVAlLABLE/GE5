@@ -1,6 +1,7 @@
 package ge5;
 
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Hashtable;
 
 public class GameLoader{
@@ -21,6 +22,10 @@ public class GameLoader{
 	
 	GameLoader(String[] classNames) throws InstantiationException, IllegalAccessException, ClassNotFoundException{
 				
+		System.out.println("Engine Started.\n");
+		
+		Arrays.sort(classNames);
+		
 		for(String s:classNames){
 			
 			Class<?> c = classLoader.loadClass(s);
@@ -39,9 +44,20 @@ public class GameLoader{
 			
 			if(Game.class.isAssignableFrom(c))
 				
-				game = (Game) c.newInstance();				
+				game = (Game) c.newInstance();		
+			
+			System.out.println("Found " + s);
 			
 		}
+		
+		if(game == null || scenes.isEmpty()){
+			
+			System.out.print("Lacking game or scene class.\nAborting.");
+			System.exit(1);
+			
+		}
+		
+		System.out.println();
 		
 		game.startGame();
 						

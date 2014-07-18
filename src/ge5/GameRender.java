@@ -20,8 +20,8 @@ class GameRender extends Canvas {
 	private GraphicsConfiguration config;
 	private int[] pixels;
 
-	private int posX = 0;
-	private int posY = 0;
+//	private int posX = 0;
+//	private int posY = 0;
 
 	GameRender(int width, int height) {
 
@@ -55,14 +55,14 @@ class GameRender extends Canvas {
 
 	void drawTiles(Scene scene) {
 
-		int xOffset = posX % 32;
-		int yOffset = posY % 32;
-
-		for (int x = posX; x < (posX + (image.getWidth())) / 32; x++) {
-			for (int y = posY; y < (posY + (image.getHeight())) / 32; y++) {
-
-			}
-		}
+//		int xOffset = posX % 32;
+//		int yOffset = posY % 32;
+//
+//		for (int x = posX; x < (posX + (image.getWidth())) / 32; x++) {
+//			for (int y = posY; y < (posY + (image.getHeight())) / 32; y++) {
+//
+//			}
+//		}
 
 	}
 
