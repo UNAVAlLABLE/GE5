@@ -22,7 +22,7 @@ class Window extends Frame {
 		addKeyListener(input);
 		addMouseWheelListener(input);
 		
-		setWindowIcon("icon.bmp");
+		setWindowIcon("icon.png");
 		
 		render = new GameRender(width, height);
 		add(render);
