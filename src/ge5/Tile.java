@@ -1,16 +1,13 @@
-// Parent class of all Map tiles
-
 package ge5;
 
-public class Tile {
-
-	public int color;
-	public int textureID;
+public abstract class Tile {
 	
-	public Tile(int textureID) {
+	void load(){
 		
-		this.textureID = textureID;
-	
 	}
+	
+	void unload(){
+		
+	}	
 
 }

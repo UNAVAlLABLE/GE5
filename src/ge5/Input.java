@@ -1,7 +1,3 @@
-// This class is to control input for all input devices.
-// Keys should be updated before each fixed tick and accessible
-// directly from the game classes
-
 package ge5;
 
 import java.awt.event.KeyEvent;
@@ -12,6 +8,8 @@ import java.awt.event.MouseWheelListener;
 public class Input implements KeyListener, MouseWheelListener {
 		
 	private int scrollWheelAxis = 0;
+	
+	public boolean up, down, left, right, space;
 		
 	protected Input() {}
 	
@@ -25,11 +23,45 @@ public class Input implements KeyListener, MouseWheelListener {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
+		
+		int keyCode = e.getKeyCode();
+
+		if (keyCode == KeyEvent.VK_UP || keyCode == KeyEvent.VK_W)
+			up = true;
+
+		if (keyCode == KeyEvent.VK_DOWN || keyCode == KeyEvent.VK_S)
+			down = true;
+
+		if (keyCode == KeyEvent.VK_LEFT || keyCode == KeyEvent.VK_A)
+			left = true;
+
+		if (keyCode == KeyEvent.VK_RIGHT || keyCode == KeyEvent.VK_D)
+			right = true;
+
+		if (keyCode == KeyEvent.VK_SPACE)
+			space = true;
 
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
+		
+		int keyCode = e.getKeyCode();
+
+		if (keyCode == KeyEvent.VK_UP || keyCode == KeyEvent.VK_W)
+			up = false;
+
+		if (keyCode == KeyEvent.VK_DOWN || keyCode == KeyEvent.VK_S)
+			down = false;
+
+		if (keyCode == KeyEvent.VK_LEFT || keyCode == KeyEvent.VK_A)
+			left = false;
+
+		if (keyCode == KeyEvent.VK_RIGHT || keyCode == KeyEvent.VK_D)
+			right = false;
+
+		if (keyCode == KeyEvent.VK_SPACE)
+			space = false;
 
 	}
 

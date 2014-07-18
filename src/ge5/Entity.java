@@ -1,15 +1,15 @@
 package ge5;
 
-public class Entity {
+public abstract class Entity {
 	
-	static int IDCounter = 0;
-	
-	public int ID;
-	
-	public Entity() {
+	void load(){
 		
-		ID = IDCounter++;
-			
 	}
+	
+	void unload(){
+		
+	}
+	
+	protected abstract void tick(int skips);
 
 }
