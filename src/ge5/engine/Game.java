@@ -1,6 +1,6 @@
 // This is the superclass for all game classes
 
-package ge5;
+package ge5.engine;
 
 import java.util.Hashtable;
 
@@ -153,12 +153,12 @@ public abstract class Game{
 		
 			if(loadedScene != null){
 				loadedScene.unload();
-				System.out.println("Succesfully unloaded \"" + loadedSceneName + "\".");
+				System.out.println("Succesfully unloaded \"" + loadedSceneName + "\"");
 			}
 			
 			loadedScene = scenes.get(name);
 			loadedScene.load();
-			System.out.println("Succesfully loaded \"" + name + "\".");
+			System.out.println("Succesfully loaded \"" + name + "\"");
 			loadedScene.start();
 			
 			loadedSceneName = name;
@@ -167,7 +167,7 @@ public abstract class Game{
 
 		} else {
 			
-			System.out.println("Failed to load \"" + name + "\".");
+			System.out.println("Failed to load \"" + name + "\"");
 			
 		}
 		

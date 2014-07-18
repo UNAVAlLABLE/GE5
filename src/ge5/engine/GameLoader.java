@@ -1,4 +1,4 @@
-package ge5;
+package ge5.engine;
 
 import java.io.InputStream;
 import java.util.Arrays;

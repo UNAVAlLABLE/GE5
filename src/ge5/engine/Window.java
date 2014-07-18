@@ -1,4 +1,4 @@
-package ge5;
+package ge5.engine;
 
 import java.awt.Frame;
 import java.awt.event.WindowAdapter;
@@ -10,7 +10,7 @@ class Window extends Frame {
 	
 	private static final long serialVersionUID = 1L;
 	
-	private GameRender render;
+	GameRender render;
 			    
     Window(Game game, Input input, String title, int width, int height) {
     	

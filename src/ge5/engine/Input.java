@@ -1,4 +1,4 @@
-package ge5;
+package ge5.engine;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;

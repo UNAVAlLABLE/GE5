@@ -1,6 +1,6 @@
 package game;
 
-import ge5.*;
+import ge5.engine.Game;
 
 public class TestGame extends Game {
 

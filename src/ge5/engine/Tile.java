@@ -1,4 +1,4 @@
-package ge5;
+package ge5.engine;
 
 public abstract class Tile {
 	

@@ -1,5 +1,5 @@
 
-package ge5;
+package ge5.engine;
 
 import java.awt.Canvas;
 import java.awt.Graphics;
