@@ -2,6 +2,8 @@
 
 package ge5;
 
+import java.util.Hashtable;
+
 public abstract class Game{
 
 	// Defaults
@@ -15,8 +17,7 @@ public abstract class Game{
 
 	protected boolean isPaused = false;
 
-	// TODO Change this into a hashtable (here and in GameLoader) for better class identification
-	protected Scene[] scenes;
+	protected Hashtable<String, Scene> scenes;
 	
 	protected Scene loadedScene;
 	protected int loadedSceneIndex = -1;
@@ -33,11 +34,8 @@ public abstract class Game{
 	
 	void startGame(){
 		
-		scenes = new Scene[GameLoader.scenes.size()];
-		
-		for (int i = 0; i < scenes.length; i++) {
-			scenes[i] = GameLoader.scenes.get(i);
-		}
+		scenes = GameLoader.scenes;
+		loadScene(scenes.keys().nextElement());
 		
 		start();
 
@@ -143,22 +141,23 @@ public abstract class Game{
 		
 	}
 
-	protected void loadScene(int index) {
+	protected void loadScene(String name) {
 
-		if (index == -1){
-
-			loadedScene.unload();
-			loadedScene = null;
+		if(scenes.get(name) != null) {
+		
+			if(loadedScene != null)
+				loadedScene.unload();
 			
+			loadedScene = scenes.get(name);
+			loadedScene.load();
+			loadedScene.start();
+
 		} else {
 			
-				loadedScene = scenes[index];
-				loadedScene.load();
-				loadedSceneIndex = index;
-				loadedScene.start();
-				
-			}
-
+			System.out.println("Failed to load \"" + name + "\".");
+			
+		}
+		
 	}
 
 	protected int getLoadedSceneindex() {

@@ -9,9 +9,7 @@ public class TestGame extends Game {
 	}
 
 	protected void start() {
-		
-		loadScene(0);
-		
+				
 	}
 
 	protected void tick(int skips) {

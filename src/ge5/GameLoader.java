@@ -1,7 +1,7 @@
 package ge5;
 
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.util.Hashtable;
 
 public class GameLoader{
 	
@@ -14,11 +14,10 @@ public class GameLoader{
 	static ClassLoader classLoader = ClassLoader.getSystemClassLoader();
 	
 	static Game game;
-	
-	// TODO Change these into a hashtables for better identification
-	static ArrayList<Tile> tiles = new ArrayList<Tile>();
-	static ArrayList<Scene> scenes = new ArrayList<Scene>();
-	static ArrayList<Entity> entities = new ArrayList<Entity>();
+		
+	static Hashtable<String, Scene> scenes = new Hashtable<String, Scene>();
+	static Hashtable<String, Tile> tiles = new Hashtable<String, Tile>();
+	static Hashtable<String, Entity> entities = new Hashtable<String, Entity>();
 	
 	GameLoader(String[] classNames) throws InstantiationException, IllegalAccessException, ClassNotFoundException{
 				
@@ -28,15 +27,15 @@ public class GameLoader{
 				
 			if(Scene.class.isAssignableFrom(c))
 				
-				scenes.add((Scene) c.newInstance());
-			
+				scenes.put(s, (Scene) c.newInstance());
+						
 			if(Entity.class.isAssignableFrom(c))
 				
-				entities.add((Entity) c.newInstance());
+				entities.put(s, (Entity) c.newInstance());
 			
 			if(Tile.class.isAssignableFrom(c))
 				
-				tiles.add((Tile) c.newInstance());
+				tiles.put(s, (Tile) c.newInstance());
 			
 			if(Game.class.isAssignableFrom(c))
 				
@@ -49,7 +48,7 @@ public class GameLoader{
 	}
 	
 	// Can be used to load images, sound, maps ... from a file
-	// TODO Currently has problems reaching absolute system paths and parent directories
+	// TODO Currently has problems reaching absolute system paths and relatively parent directories
 	public static InputStream getFileData(String path) {
 		
 		return classLoader.getResourceAsStream(path);
