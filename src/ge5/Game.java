@@ -38,9 +38,12 @@ public abstract class Game{
 	void startGame(){
 		
 		scenes = GameLoader.scenes;
-		loadScene(scenes.keys().nextElement());
 		
 		start();
+		
+		if(loadedScene == null)
+			
+			loadScene(scenes.keys().nextElement());
 
 		gameLoop2();
 		
