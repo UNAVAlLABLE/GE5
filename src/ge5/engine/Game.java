@@ -23,6 +23,7 @@ public abstract class Game{
 	protected String loadedSceneName;
 	
 	protected long gameTicks = 0;
+	protected long skippedTicks = 0;
 	protected long sceneTicks = 0;
 
 	protected Game() {
@@ -100,47 +101,45 @@ public abstract class Game{
 	// Second game loop that allows 1 second to catch up before skipping ticks
 	private void gameLoop2() {
 		
+		// Maximum amount of time each tick should last
 		long fixedTickTime = (1000000000L / tickRate);
-		long accumulatedTime = fixedTickTime;
+		
+		// The Amount of time behind
+		long owedTime = fixedTickTime;
+		
 		long now = System.nanoTime();
 		long lastTime = System.nanoTime();
-		int skips;
+		
+		long skips = 1;
 		
 		while(true){
 			
 			now = System.nanoTime();
-
-			accumulatedTime += now - lastTime;
-
+			owedTime += now - lastTime;
 			lastTime = now;
 			
-			skips = (int) (1 + accumulatedTime / 1000000000);
-			
-			if(skips > 1){
+			while (owedTime >= fixedTickTime) {
 				
-				System.out.println("Skipping " + (skips-1) + " ticks");
+				skips = 1 + owedTime / (fixedTickTime * tickRate);
 				
-			}
-			
-			while (accumulatedTime >= fixedTickTime) {
+				if (skips > 1) {
+					skippedTicks += skips-1;
+					System.out.printf("Simulated %2d tick(s). Overall game preformance: %.2f%s%n", (skips - 1), (1 - (((float) skippedTicks)/gameTicks)) * 100, "%.");
+				}
 				
-				tick(skips);
+				tick((int) skips);
 
 				if (isPaused == false) {
-
-					loadedScene.tick(skips);
+					loadedScene.tick((int) skips);
 					sceneTicks += skips;
-
 				}
 				
 				gameTicks += skips;
-				
 				window.renderGame(loadedScene);
-				
 				input.clear();
 				
-				accumulatedTime -= fixedTickTime;
-								
+				owedTime -= fixedTickTime * skips;		
+												
 			}
 			
 		}
