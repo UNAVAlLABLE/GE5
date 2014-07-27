@@ -2,7 +2,7 @@
 package ge5.engine;
 
 import java.awt.Canvas;
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
 import java.awt.Transparency;
@@ -16,12 +16,14 @@ class GameRender extends Canvas {
 
 	private BufferedImage image;
 	private BufferStrategy bufferStrategy;
-	private Graphics graphics;
+	private Graphics2D graphics;
 	private GraphicsConfiguration config;
 	private int[] pixels;
+	
+	Bitmap tileMap;
 
-//	private int posX = 0;
-//	private int posY = 0;
+	public int xOffset = 0;
+	public int yOffset = 0;
 
 	GameRender(int width, int height) {
 
@@ -34,7 +36,7 @@ class GameRender extends Canvas {
 	
 	void resizeImage(int width, int height) {
 
-		image = config.createCompatibleImage(width + 64, height + 64, Transparency.OPAQUE);
+		image = config.createCompatibleImage(width, height, Transparency.OPAQUE);
 		pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 		
 	}
@@ -42,52 +44,68 @@ class GameRender extends Canvas {
 	void render(Scene scene) {
 
 		bufferStrategy = getBufferStrategy();
-		graphics = bufferStrategy.getDrawGraphics();
-				
-		drawTiles(scene);
+		graphics = (Graphics2D) bufferStrategy.getDrawGraphics();
+						
+		drawTiles(new Bitmap(new int[10000], 10, 10));
 		
-		graphics.drawImage(image, -32, -32, image.getWidth(), image.getHeight(), null);
+		graphics.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 
 		bufferStrategy.show();
 		graphics.dispose();
 
 	}
 
-	void drawTiles(Scene scene) {
+	void drawTiles(Bitmap tileMap) {
+		
+		int startX = (xOffset < 0) ? 0 : xOffset;
+		int endX = xOffset + image.getWidth() > tileMap.width * 32 ? tileMap.width * 32: xOffset + image.getWidth();
+		
+		int startY = (yOffset < 0) ? 0 : yOffset;
+		int endY = yOffset + image.getHeight() > tileMap.height * 32 ? tileMap.height * 32: yOffset + image.getHeight();
+		
+		for (int row = startY; row < endY; row++) {
+			
+			for (int column = startX; column < endX; column++) {
+				
+				if(row % 32 == 0 || column % 32 == 0)
+					
+					pixels[column + (row * image.getWidth())] = 0xff000000;
+				
+				else
+					
+					pixels[column + (row * image.getWidth())] = 0xffcccccc;
+				
+			}
 
-//		int xOffset = posX % 32;
-//		int yOffset = posY % 32;
-//
-//		for (int x = posX; x < (posX + (image.getWidth())) / 32; x++) {
-//			for (int y = posY; y < (posY + (image.getHeight())) / 32; y++) {
-//
-//			}
-//		}
-
+		}
+			
 	}
 
 	void renderBitmap(Bitmap bitmap, int x, int y) {
 
+		renderBitmap(bitmap.pixels, bitmap.width, bitmap.height, x, y);
+
+	}
+	
+	void renderBitmap(int[] p, int w, int h, int x, int y) {
+
 		int startX = (x < 0) ? 0 : x;
-
 		int startY = (y < 0) ? 0 : y;
+		int endX = (x + w > image.getWidth()) ? image.getWidth() : w + x;
+		int endY = (y + h > image.getHeight()) ? image.getHeight() : h + y;
+		
+		int sp;
+		int tp;
 
-		int endX = (x + bitmap.width > image.getWidth()) ? image.getWidth() : bitmap.width + x;
-
-		int endY = (y + bitmap.height > image.getHeight()) ? image.getHeight() : bitmap.height + y;
-
-		for (int yy = startY; yy < endY; yy++) {
+		for (int row = startY; row < endY; row++) {
 			
-			int tp = yy * image.getWidth() + startX;
+			sp = (row - y) * w + (startX - x);
 			
-			int sp = (yy - y) * bitmap.width + (startX - x);
+			tp = (row * image.getWidth() + startX) - sp;
 			
-			tp -= sp;
-			
-			for (int xx = sp; xx < sp + (endX - startX); xx++) {
+			for (int column = sp; column < sp + (endX - startX); column++) {
 				
-				int col = bitmap.pixels[xx];
-				pixels[tp + xx] = col;
+				pixels[tp + column] = p[column];
 				
 			}
 			
@@ -95,7 +113,7 @@ class GameRender extends Canvas {
 
 	}
 
-	public int[] scale(int[] pixels, int w1, int h1, int w2, int h2) {
+	public static int[] scale(int[] pixels, int w1, int h1, int w2, int h2) {
 
 		int[] result = new int[w2 * h2];
 

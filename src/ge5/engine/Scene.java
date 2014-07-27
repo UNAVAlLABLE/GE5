@@ -1,7 +1,7 @@
 package ge5.engine;
 
 public abstract class Scene {
-		
+			
 	protected void load() {
 
 	}

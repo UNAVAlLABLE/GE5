@@ -6,23 +6,20 @@ import java.util.Hashtable;
 
 public class GameLoader{
 	
+	static ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+	
+	static Game game;
+	static Hashtable<String, Scene> scenes = new Hashtable<String, Scene>();
+	static Hashtable<String, Tile> tiles = new Hashtable<String, Tile>();
+	static Hashtable<String, Entity> entities = new Hashtable<String, Entity>();
+	
 	public static void main(String[] args) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		
 		new GameLoader(args);
 				
 	}
 	
-	static ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-	
-	static Game game;
-		
-	static Hashtable<String, Scene> scenes = new Hashtable<String, Scene>();
-	static Hashtable<String, Tile> tiles = new Hashtable<String, Tile>();
-	static Hashtable<String, Entity> entities = new Hashtable<String, Entity>();
-	
 	GameLoader(String[] classNames) throws InstantiationException, IllegalAccessException, ClassNotFoundException{
-				
-		System.out.println("Engine Started.\n");
 		
 		Arrays.sort(classNames);
 		
@@ -30,23 +27,37 @@ public class GameLoader{
 			
 			Class<?> c = classLoader.loadClass(s);
 				
-			if(Scene.class.isAssignableFrom(c))
+			if(Scene.class.isAssignableFrom(c)){
 				
 				scenes.put(s, (Scene) c.newInstance());
+				System.out.println("Found scene class " + s);
+				continue;
+				
+			}
 						
-			if(Entity.class.isAssignableFrom(c))
+			if(Entity.class.isAssignableFrom(c)){
 				
 				entities.put(s, (Entity) c.newInstance());
+				System.out.println("Found entity class " + s);
+				continue;
+				
+			}
 			
-			if(Tile.class.isAssignableFrom(c))
+			if(Tile.class.isAssignableFrom(c)){
 				
 				tiles.put(s, (Tile) c.newInstance());
-			
-			if(Game.class.isAssignableFrom(c))
+				System.out.println("Found tile class " + s);
+				continue;
 				
-				game = (Game) c.newInstance();		
+			}
 			
-			System.out.println("Found " + s);
+			if(Game.class.isAssignableFrom(c)){
+				
+				game = (Game) c.newInstance();
+				System.out.println("Found game class  " + s);
+				continue;
+				
+			}
 			
 		}
 		
