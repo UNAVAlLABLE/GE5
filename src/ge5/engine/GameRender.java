@@ -22,13 +22,14 @@ class GameRender extends Canvas {
 	
 	Bitmap tileMap;
 
-	public int xOffset = 0;
-	public int yOffset = 0;
+	public int xOffset = -21;
+	public int yOffset = 62;
 
 	GameRender(int width, int height) {
 
 		config = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
 		resizeImage(width, height);
+		setFocusable(false);
 		setSize(width, height);
 		setIgnoreRepaint(true);
 
@@ -45,8 +46,13 @@ class GameRender extends Canvas {
 
 		bufferStrategy = getBufferStrategy();
 		graphics = (Graphics2D) bufferStrategy.getDrawGraphics();
+		
+		if(Input.up)yOffset++;
+		if(Input.down)yOffset--;
+		if(Input.left)xOffset++;
+		if(Input.right)xOffset--;
 						
-		drawTiles(new Bitmap(new int[10000], 10, 10));
+		drawTiles(new Bitmap(new int[16], 4, 4));
 		
 		graphics.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 
@@ -57,23 +63,26 @@ class GameRender extends Canvas {
 
 	void drawTiles(Bitmap tileMap) {
 		
+		// Finds the bounds of the rectangle intersection between the viewport and the tilemap
 		int startX = (xOffset < 0) ? 0 : xOffset;
-		int endX = xOffset + image.getWidth() > tileMap.width * 32 ? tileMap.width * 32: xOffset + image.getWidth();
-		
+		int endX = xOffset + image.getWidth() > tileMap.width * 32 ? tileMap.width * 32: xOffset + image.getWidth();		
 		int startY = (yOffset < 0) ? 0 : yOffset;
 		int endY = yOffset + image.getHeight() > tileMap.height * 32 ? tileMap.height * 32: yOffset + image.getHeight();
 		
+		// Finds the new rectangles offset on the view port
+		int baseOffset = ((startX - xOffset) + (startY - yOffset) * image.getWidth()) - (xOffset + yOffset * image.getWidth());
+				
 		for (int row = startY; row < endY; row++) {
 			
 			for (int column = startX; column < endX; column++) {
 				
 				if(row % 32 == 0 || column % 32 == 0)
 					
-					pixels[column + (row * image.getWidth())] = 0xff000000;
+					pixels[baseOffset + column + (row * image.getWidth())] = 0xff000000;
 				
 				else
 					
-					pixels[column + (row * image.getWidth())] = 0xffcccccc;
+					pixels[baseOffset + column + (row * image.getWidth())] = 0xffcccccc;
 				
 			}
 
@@ -90,8 +99,9 @@ class GameRender extends Canvas {
 	void renderBitmap(int[] p, int w, int h, int x, int y) {
 
 		int startX = (x < 0) ? 0 : x;
-		int startY = (y < 0) ? 0 : y;
 		int endX = (x + w > image.getWidth()) ? image.getWidth() : w + x;
+
+		int startY = (y < 0) ? 0 : y;
 		int endY = (y + h > image.getHeight()) ? image.getHeight() : h + y;
 		
 		int sp;

@@ -9,7 +9,7 @@ public class Input implements KeyListener, MouseWheelListener {
 		
 	private int scrollWheelAxis = 0;
 	
-	public boolean up, down, left, right, space;
+	public static boolean up, down, left, right, space;
 		
 	protected Input() {}
 	
