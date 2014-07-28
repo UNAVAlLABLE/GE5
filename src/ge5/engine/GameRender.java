@@ -9,6 +9,7 @@ import java.awt.Transparency;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
+import java.util.Arrays;
 
 class GameRender extends Canvas {
 
@@ -21,7 +22,6 @@ class GameRender extends Canvas {
 	
 	private int[] pixels;
 	
-	int tileSize = 32;
 	int xOffset = 0;
 	int yOffset = 0;
 
@@ -56,41 +56,36 @@ class GameRender extends Canvas {
 		if(Input.left)xOffset++;
 		if(Input.right)xOffset--;
 								
-		drawTiles(new Bitmap(new int[16], 5, 5),xOffset,yOffset);
+		drawTiles(new Bitmap(new int[100], 4, 4),xOffset,yOffset);
 		
 		graphics.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 
 		bufferStrategy.show();
 		graphics.dispose();
+		
+		Arrays.fill(pixels,0);
 
 	}
 
-	void drawTiles(Bitmap tileMap,int xOffset, int yOffset) {
+	void drawTiles(Bitmap tileMap, int xOffset, int yOffset) {
 				
-//		// Finds the bounds of the rectangle intersection between the view port and the tile map
-//		int startX = (xOffset < 0) ? 0 : xOffset;
-//		int endX = xOffset + image.getWidth() > tileMap.width * 32 ? tileMap.width * 32: xOffset + image.getWidth();		
-//		int startY = (yOffset < 0) ? 0 : yOffset;
-//		int endY = yOffset + image.getHeight() > tileMap.height * 32 ? tileMap.height * 32: yOffset + image.getHeight();
-//		
-//		// Finds the new rectangles offset on the view port
-//		int baseOffset = startX + image.getWidth() * (startY - yOffset) - image.getWidth() * yOffset - 2 * xOffset;
-//				
-//		for (int row = startY; row < endY; row++) {
-//			
-//			for (int column = startX; column < endX; column++) {
-//				
-//				if(row % 32 == 0 || column % 32 == 0)
-//					
-//					pixels[baseOffset + column + (row * image.getWidth())] = 0xff000000;
-//				
-//				else
-//					
-//					pixels[baseOffset + column + (row * image.getWidth())] = 0xffcccccc;
-//				
-//			}
-//
-//		}
+		int startX = (xOffset < 0) ? 0 : xOffset;
+		int endX = (xOffset + image.getWidth() > tileMap.width * 32) ?  tileMap.width * 32 : image.getWidth() + xOffset;
+
+		int startY = (yOffset < 0) ? 0 : yOffset;
+		int endY = (yOffset + image.getHeight() > tileMap.height * 32) ?  tileMap.height * 32 : image.getHeight() + yOffset;
+		
+		for (int row = startY; row < endY; row++) {
+			
+			int y = ((row - yOffset) * image.getWidth() + startX);
+			
+			for (int x = 0; x < endX - startX; x++) {
+								
+				pixels[y + (x - xOffset)] = 0xffffffff;
+				
+			}
+			
+		}
 			
 	}
 
@@ -108,18 +103,15 @@ class GameRender extends Canvas {
 		int startY = (y < 0) ? 0 : y;
 		int endY = (y + h > image.getHeight()) ? image.getHeight() : h + y;
 		
-		int sp;
-		int tp;
+		int offset;
 
 		for (int row = startY; row < endY; row++) {
 			
-			sp = (row - y) * w + (startX - x);
+			offset = (row * image.getWidth() + startX);
 			
-			tp = (row * image.getWidth() + startX) - sp;
-			
-			for (int column = sp; column < sp + (endX - startX); column++) {
+			for (int i = offset; i < offset + (endX - startX); i++) {
 				
-				pixels[tp + column] = p[column];
+				pixels[i] = p[i];
 				
 			}
 			
