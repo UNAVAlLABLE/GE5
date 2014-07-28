@@ -1,3 +1,8 @@
+// Terminology
+//
+// Tile Map: Map of all tiles, where each unit represents a tile type
+// World Space: Virtual world space in which every pixel of every tile represents a point. Top left corner is (0,0)
+// View port: Pixels visible on the screen. The top right corner (0,0) on viewport corresponds with (xOffset, yOffset) in world space
 
 package ge5.engine;
 
@@ -9,7 +14,6 @@ import java.awt.Transparency;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
-import java.util.Arrays;
 
 class GameRender extends Canvas {
 
@@ -20,9 +24,13 @@ class GameRender extends Canvas {
 	private Graphics2D graphics;
 	private GraphicsConfiguration config;
 	
+	// The main raster of the view port
 	private int[] pixels;
+	
+	// Has to be a multiple of 2
 	int tileSize = 32;
 	
+	// The world position of the top left corner of the view port
 	int xOffset = 0;
 	int yOffset = 0;
 
@@ -64,33 +72,37 @@ class GameRender extends Canvas {
 		bufferStrategy.show();
 		graphics.dispose();
 		
-		Arrays.fill(pixels,0);
+		// Clear the image raster
+		// This will become redundant when we implement dynamic image sized for zooming
+		for(int x : pixels)
+			pixels[x] = 0;
 
 	}
 
 	void drawTiles(Bitmap tileMap) {
 		
 		// Preallocate variables
-		int startX, endX, startY, endY, camX, camY;
+		int startX, endX, startY, endY, camX, camY, worldX, worldY;
 		
-		// Finds the bounds (in world space) of the pixels that are visible and are on the tile map
+		// Finds the bounds (in world space) of the pixels that are both visible and are on the tile map
 		startX = (xOffset < 0) ? 0 : xOffset;
 		endX = (xOffset + image.getWidth() > tileMap.width * tileSize) ?  tileMap.width * tileSize : image.getWidth() + xOffset;
 		startY = (yOffset < 0) ? 0 : yOffset;
 		endY = (yOffset + image.getHeight() > tileMap.height * tileSize) ?  tileMap.height * tileSize : image.getHeight() + yOffset;
 		
 		// For each visible row in world space defined by the bounds above
-		for (int worldY = startY; worldY < endY; worldY++) {
+		for (worldY = startY; worldY < endY; worldY++) {
 			
-			// Finds the corresponding row on the view port and multiplies it by image.getWidth() to get its value on pixels[]
+			// Find the corresponding row on the view port and multiply it by image.getWidth() to get its absolute position on pixels[]
 			camX = (worldY - yOffset) * image.getWidth();
 			
 			// For each visible column in world space defined by the bounds above
-			for (int worldX = startX; worldX < endX; worldX++) {
+			for (worldX = startX; worldX < endX; worldX++) {
 				
 				// Finds the corresponding column on the view port
 				camY = (worldX - xOffset);
 				
+				// Mock-up of what the code to render tiles should be like once we implement tile classes and a tile map
 				// pixels[camX + camY] = getTileImage(tileMap[worldX/tileSize,worldY/tileSize])[worldX%tileSize,worldY%tileSize];
 				
 			}
@@ -98,30 +110,57 @@ class GameRender extends Canvas {
 		}
 			
 	}
+	
+	// Uses renderRaster to cull and render a buffered image with its own width and height
+	void renderBufferedImage(BufferedImage i, int x, int y) {
 
-	void renderBitmap(Bitmap bitmap, int x, int y) {
-
-		renderBitmap(bitmap.pixels, bitmap.width, bitmap.height, x, y);
+		renderRaster(((DataBufferInt) i.getRaster().getDataBuffer()).getData(), i.getWidth(), i.getHeight(), x, y);
 
 	}
 	
-	void renderBitmap(int[] p, int w, int h, int x, int y) {
+	// Uses renderRaster to cull and render a buffered image scaled to a custom width and height
+	void renderBufferedImage(BufferedImage i, int w, int h, int x, int y) {
+
+		renderRaster(scaleRaster(((DataBufferInt) i.getRaster().getDataBuffer()).getData(), i.getWidth(),i.getHeight(), w, h), 2, h, x, y);
+
+	}
+
+	// Uses renderRaster to cull and render a bitmap with its own width and height
+	void renderBitmap(Bitmap bitmap, int x, int y) {
+
+		renderRaster(bitmap.pixels, bitmap.width, bitmap.height, x, y);
+
+	}
+	
+	// Uses renderRaster to cull and render a bitmap scaled to a custom width and height
+	void renderBitmap(Bitmap bitmap, int w, int h, int x, int y) {
+
+		renderRaster(scaleRaster(bitmap.pixels, bitmap.width, bitmap.height, w, h), w, h, x, y);
+
+	}
+	
+	// Culls and renders a raster onto the viewport
+	void renderRaster(int[] p, int w, int h, int x, int y) {
 		
+		// Preallocate variables
 		int startX, endX, startY, endY, offset;
 
+		// Finds the bounds (in world space) of the pixels that are visible and are on the tile map
 		startX = (x < 0) ? 0 : x;
 		endX = (x + w > image.getWidth()) ? image.getWidth() : w + x;
-
 		startY = (y < 0) ? 0 : y;
 		endY = (y + h > image.getHeight()) ? image.getHeight() : h + y;
 		
+		// For each visible row in world space defined by the bounds above
 		for (int row = startY; row < endY; row++) {
 			
+			// Calculate the position of the first pixel of the row on the view port
 			offset = (row * image.getWidth() + startX);
 			
-			for (int i = offset; i < offset + (endX - startX); i++) {
+			// For each pixel in the row
+			for (int i = 0; i < endX - startX; i++) {
 				
-				pixels[i] = p[i];
+				pixels[i + offset] = p[i];
 				
 			}
 			
@@ -129,7 +168,7 @@ class GameRender extends Canvas {
 
 	}
 
-	public static int[] scale(int[] pixels, int w1, int h1, int w2, int h2) {
+	public static int[] scaleRaster(int[] pixels, int w1, int h1, int w2, int h2) {
 
 		int[] result = new int[w2 * h2];
 
