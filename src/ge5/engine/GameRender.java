@@ -18,41 +18,45 @@ class GameRender extends Canvas {
 	private BufferStrategy bufferStrategy;
 	private Graphics2D graphics;
 	private GraphicsConfiguration config;
+	
 	private int[] pixels;
 	
-	Bitmap tileMap;
-
-	public int xOffset = -21;
-	public int yOffset = 62;
+	int tileSize = 32;
+	int xOffset = 0;
+	int yOffset = 0;
 
 	GameRender(int width, int height) {
-
-		config = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
+		
 		resizeImage(width, height);
-		setFocusable(false);
 		setSize(width, height);
+		
+		setFocusable(false);
 		setIgnoreRepaint(true);
 
 	}
 	
 	void resizeImage(int width, int height) {
 
+		config = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
+		
 		image = config.createCompatibleImage(width, height, Transparency.OPAQUE);
+		
 		pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 		
 	}
 
 	void render(Scene scene) {
-
+		
 		bufferStrategy = getBufferStrategy();
 		graphics = (Graphics2D) bufferStrategy.getDrawGraphics();
-		
+				
+		// Temporary
 		if(Input.up)yOffset++;
 		if(Input.down)yOffset--;
 		if(Input.left)xOffset++;
 		if(Input.right)xOffset--;
-						
-		drawTiles(new Bitmap(new int[16], 4, 4));
+								
+		drawTiles(new Bitmap(new int[16], 5, 5),xOffset,yOffset);
 		
 		graphics.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 
@@ -61,32 +65,32 @@ class GameRender extends Canvas {
 
 	}
 
-	void drawTiles(Bitmap tileMap) {
-		
-		// Finds the bounds of the rectangle intersection between the viewport and the tilemap
-		int startX = (xOffset < 0) ? 0 : xOffset;
-		int endX = xOffset + image.getWidth() > tileMap.width * 32 ? tileMap.width * 32: xOffset + image.getWidth();		
-		int startY = (yOffset < 0) ? 0 : yOffset;
-		int endY = yOffset + image.getHeight() > tileMap.height * 32 ? tileMap.height * 32: yOffset + image.getHeight();
-		
-		// Finds the new rectangles offset on the view port
-		int baseOffset = ((startX - xOffset) + (startY - yOffset) * image.getWidth()) - (xOffset + yOffset * image.getWidth());
+	void drawTiles(Bitmap tileMap,int xOffset, int yOffset) {
 				
-		for (int row = startY; row < endY; row++) {
-			
-			for (int column = startX; column < endX; column++) {
-				
-				if(row % 32 == 0 || column % 32 == 0)
-					
-					pixels[baseOffset + column + (row * image.getWidth())] = 0xff000000;
-				
-				else
-					
-					pixels[baseOffset + column + (row * image.getWidth())] = 0xffcccccc;
-				
-			}
-
-		}
+//		// Finds the bounds of the rectangle intersection between the view port and the tile map
+//		int startX = (xOffset < 0) ? 0 : xOffset;
+//		int endX = xOffset + image.getWidth() > tileMap.width * 32 ? tileMap.width * 32: xOffset + image.getWidth();		
+//		int startY = (yOffset < 0) ? 0 : yOffset;
+//		int endY = yOffset + image.getHeight() > tileMap.height * 32 ? tileMap.height * 32: yOffset + image.getHeight();
+//		
+//		// Finds the new rectangles offset on the view port
+//		int baseOffset = startX + image.getWidth() * (startY - yOffset) - image.getWidth() * yOffset - 2 * xOffset;
+//				
+//		for (int row = startY; row < endY; row++) {
+//			
+//			for (int column = startX; column < endX; column++) {
+//				
+//				if(row % 32 == 0 || column % 32 == 0)
+//					
+//					pixels[baseOffset + column + (row * image.getWidth())] = 0xff000000;
+//				
+//				else
+//					
+//					pixels[baseOffset + column + (row * image.getWidth())] = 0xffcccccc;
+//				
+//			}
+//
+//		}
 			
 	}
 
