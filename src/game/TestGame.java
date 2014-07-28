@@ -6,7 +6,9 @@ public class TestGame extends Game {
 
 	protected void init() {
 		
-		tickRate = 60;
+		width = 400;
+		height = 300;
+		tickRate = 30;
 								
 	}
 

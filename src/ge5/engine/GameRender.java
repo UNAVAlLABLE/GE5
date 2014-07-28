@@ -27,12 +27,14 @@ class GameRender extends Canvas {
 	// The main raster of the view port
 	private int[] pixels;
 	
-	// Has to be a multiple of 2
+	// Must be a multiple of 2
 	int tileSize = 32;
 	
 	// The world position of the top left corner of the view port
 	int xOffset = 0;
 	int yOffset = 0;
+	
+	int[] test = new int[1000000];
 
 	GameRender(int width, int height) {
 		
@@ -41,6 +43,13 @@ class GameRender extends Canvas {
 		
 		setFocusable(false);
 		setIgnoreRepaint(true);
+		
+		// Temporary
+		for(int i = 0; i < test.length; i++){
+			
+			test[i] = (int) (Math.random() * Integer.MAX_VALUE);
+			
+		}
 
 	}
 	
@@ -53,6 +62,7 @@ class GameRender extends Canvas {
 		pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 		
 	}
+	
 
 	void render(Scene scene) {
 		
@@ -60,12 +70,12 @@ class GameRender extends Canvas {
 		graphics = (Graphics2D) bufferStrategy.getDrawGraphics();
 				
 		// Temporary
-		if(Input.up)yOffset++;
-		if(Input.down)yOffset--;
-		if(Input.left)xOffset++;
-		if(Input.right)xOffset--;
+		if(Input.up)yOffset+= 10;
+		if(Input.down)yOffset-= 10;
+		if(Input.left)xOffset+= 10;
+		if(Input.right)xOffset-= 10;
 								
-		drawTiles(new Bitmap(new int[100], 10, 10));
+		drawTiles(new Bitmap(test, 1000, 1000));
 		
 		graphics.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 
@@ -74,8 +84,8 @@ class GameRender extends Canvas {
 		
 		// Clear the image raster
 		// This will become redundant when we implement dynamic image sized for zooming
-		for(int x : pixels)
-			pixels[x] = 0;
+		for(int i = 0; i < pixels.length; i++)
+			pixels[i] = 0;
 
 	}
 
@@ -104,6 +114,8 @@ class GameRender extends Canvas {
 				
 				// Mock-up of what the code to render tiles should be like once we implement tile classes and a tile map
 				// pixels[camX + camY] = getTileImage(tileMap[worldX/tileSize,worldY/tileSize])[worldX%tileSize,worldY%tileSize];
+				
+				pixels[camX + camY] = tileMap.pixels[worldX/tileSize + ((worldY/tileSize) * tileMap.width)];
 				
 			}
 			
