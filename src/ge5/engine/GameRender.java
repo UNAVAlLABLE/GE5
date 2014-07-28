@@ -21,6 +21,7 @@ class GameRender extends Canvas {
 	private GraphicsConfiguration config;
 	
 	private int[] pixels;
+	int tileSize = 32;
 	
 	int xOffset = 0;
 	int yOffset = 0;
@@ -56,7 +57,7 @@ class GameRender extends Canvas {
 		if(Input.left)xOffset++;
 		if(Input.right)xOffset--;
 								
-		drawTiles(new Bitmap(new int[100], 4, 4),xOffset,yOffset);
+		drawTiles(new Bitmap(new int[100], 10, 10));
 		
 		graphics.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 
@@ -67,21 +68,30 @@ class GameRender extends Canvas {
 
 	}
 
-	void drawTiles(Bitmap tileMap, int xOffset, int yOffset) {
-				
-		int startX = (xOffset < 0) ? 0 : xOffset;
-		int endX = (xOffset + image.getWidth() > tileMap.width * 32) ?  tileMap.width * 32 : image.getWidth() + xOffset;
-
-		int startY = (yOffset < 0) ? 0 : yOffset;
-		int endY = (yOffset + image.getHeight() > tileMap.height * 32) ?  tileMap.height * 32 : image.getHeight() + yOffset;
+	void drawTiles(Bitmap tileMap) {
 		
-		for (int row = startY; row < endY; row++) {
+		// Preallocate variables
+		int startX, endX, startY, endY, camX, camY;
+		
+		// Finds the bounds (in world space) of the pixels that are visible and are on the tile map
+		startX = (xOffset < 0) ? 0 : xOffset;
+		endX = (xOffset + image.getWidth() > tileMap.width * tileSize) ?  tileMap.width * tileSize : image.getWidth() + xOffset;
+		startY = (yOffset < 0) ? 0 : yOffset;
+		endY = (yOffset + image.getHeight() > tileMap.height * tileSize) ?  tileMap.height * tileSize : image.getHeight() + yOffset;
+		
+		// For each visible row in world space defined by the bounds above
+		for (int worldY = startY; worldY < endY; worldY++) {
 			
-			int y = ((row - yOffset) * image.getWidth() + startX);
+			// Finds the corresponding row on the view port and multiplies it by image.getWidth() to get its value on pixels[]
+			camX = (worldY - yOffset) * image.getWidth();
 			
-			for (int x = 0; x < endX - startX; x++) {
-								
-				pixels[y + (x - xOffset)] = 0xffffffff;
+			// For each visible column in world space defined by the bounds above
+			for (int worldX = startX; worldX < endX; worldX++) {
+				
+				// Finds the corresponding column on the view port
+				camY = (worldX - xOffset);
+				
+				// pixels[camX + camY] = getTileImage(tileMap[worldX/tileSize,worldY/tileSize])[worldX%tileSize,worldY%tileSize];
 				
 			}
 			
@@ -96,15 +106,15 @@ class GameRender extends Canvas {
 	}
 	
 	void renderBitmap(int[] p, int w, int h, int x, int y) {
-
-		int startX = (x < 0) ? 0 : x;
-		int endX = (x + w > image.getWidth()) ? image.getWidth() : w + x;
-
-		int startY = (y < 0) ? 0 : y;
-		int endY = (y + h > image.getHeight()) ? image.getHeight() : h + y;
 		
-		int offset;
+		int startX, endX, startY, endY, offset;
 
+		startX = (x < 0) ? 0 : x;
+		endX = (x + w > image.getWidth()) ? image.getWidth() : w + x;
+
+		startY = (y < 0) ? 0 : y;
+		endY = (y + h > image.getHeight()) ? image.getHeight() : h + y;
+		
 		for (int row = startY; row < endY; row++) {
 			
 			offset = (row * image.getWidth() + startX);
