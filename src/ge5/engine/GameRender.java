@@ -1,8 +1,6 @@
-// Terminology
-//
 // Tile Map: Map of all tiles, where each unit represents a tile type
 // World Space: Virtual world space in which every pixel of every tile represents a point. Top left corner is (0,0)
-// View port: Pixels visible on the screen. The top right corner (0,0) on viewport corresponds with (xOffset, yOffset) in world space
+// View port: Pixels visible on the screen. The top right corner (0,0) on view port corresponds with (xOffset, yOffset) in world space
 
 package ge5.engine;
 
@@ -32,6 +30,7 @@ class GameRender extends Canvas {
 	int xOffset = 0;
 	int yOffset = 0;
 	
+	// Temporary
 	int[] test = new int[1000000];
 
 	GameRender(int width, int height) {
@@ -41,16 +40,11 @@ class GameRender extends Canvas {
 		
 		setFocusable(false);
 		setIgnoreRepaint(true);
-		
-		// Temporary
-		
-		for(int i = 0; i < test.length; i++){
-			
-			test[i] = (int) (Math.random() * Integer.MAX_VALUE);
-			
-		}
-
+				
 	}
+	
+	
+	
 	
 	void resizeImage(int width, int height) {
 
@@ -73,14 +67,12 @@ class GameRender extends Canvas {
 		if(Input.down)yOffset += 10;
 		if(Input.left)xOffset -= 10;
 		if(Input.right)xOffset += 10;
-		if(Input.e && tileSize >= 2)tileSize--;
-		if(Input.q && tileSize <= 256)tileSize++;
-			
+		if(Input.e && tileSize >= 4)tileSize -= 1 + 0.1 * tileSize;
+		if(Input.q && tileSize <= 256)tileSize += 1 + 0.1 * tileSize;
 		
-		
-								
-		drawTiles(new Bitmap(test, 1000, 1000));
-		
+		// Temporary
+		renderTilemap(new Bitmap(test, 1000, 1000));
+				
 		graphics.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 
 		bufferStrategy.show();
@@ -91,7 +83,7 @@ class GameRender extends Canvas {
 
 	}
 
-	void drawTiles(Bitmap tileMap) {
+	void renderTilemap(Bitmap tileMap) {
 		
 		// Preallocate variables
 		int startX, endX, startY, endY, camX, camY, worldX, worldY;
@@ -114,9 +106,7 @@ class GameRender extends Canvas {
 				// Finds the corresponding column on the view port
 				camY = (worldX - xOffset);
 				
-				// Mock-up of what the code to render tiles should be like once we implement tile classes and a tile map
-				// pixels[camX + camY] = getTileImage(tileMap[worldX/tileSize,worldY/tileSize])[worldX%tileSize,worldY%tileSize];
-				
+				// Temporary
 				pixels[camX + camY] = tileMap.pixels[worldX/tileSize + ((worldY/tileSize) * tileMap.width)];
 				
 			}
@@ -125,36 +115,36 @@ class GameRender extends Canvas {
 			
 	}
 	
-	// Uses renderRaster to cull and render a buffered image with its own width and height
-	void renderBufferedImage(BufferedImage i, int x, int y) {
+	// Uses drawRaster to cull and render a buffered image with its own width and height
+	void drawBufferedImage(BufferedImage i, int x, int y) {
 
-		renderRaster(((DataBufferInt) i.getRaster().getDataBuffer()).getData(), i.getWidth(), i.getHeight(), x, y);
-
-	}
-	
-	// Uses renderRaster to cull and render a buffered image scaled to a custom width and height
-	void renderBufferedImage(BufferedImage i, int w, int h, int x, int y) {
-
-		renderRaster(scaleRaster(((DataBufferInt) i.getRaster().getDataBuffer()).getData(), i.getWidth(),i.getHeight(), w, h), 2, h, x, y);
-
-	}
-
-	// Uses renderRaster to cull and render a bitmap with its own width and height
-	void renderBitmap(Bitmap bitmap, int x, int y) {
-
-		renderRaster(bitmap.pixels, bitmap.width, bitmap.height, x, y);
+		drawRaster(((DataBufferInt) i.getRaster().getDataBuffer()).getData(), i.getWidth(), i.getHeight(), x, y);
 
 	}
 	
-	// Uses renderRaster to cull and render a bitmap scaled to a custom width and height
-	void renderBitmap(Bitmap bitmap, int w, int h, int x, int y) {
+	// Uses drawRaster to cull and render a buffered image scaled to a custom width and height
+	void drawBufferedImage(BufferedImage i, int w, int h, int x, int y) {
 
-		renderRaster(scaleRaster(bitmap.pixels, bitmap.width, bitmap.height, w, h), w, h, x, y);
+		drawRaster(scaleRaster(((DataBufferInt) i.getRaster().getDataBuffer()).getData(), i.getWidth(),i.getHeight(), w, h), 2, h, x, y);
+
+	}
+
+	// Uses drawRaster to cull and render a bitmap with its own width and height
+	void drawBitmap(Bitmap bitmap, int x, int y) {
+
+		drawRaster(bitmap.pixels, bitmap.width, bitmap.height, x, y);
 
 	}
 	
-	// Culls and renders a raster onto the viewport
-	void renderRaster(int[] p, int w, int h, int x, int y) {
+	// Uses drawRaster to cull and render a bitmap scaled to a custom width and height
+	void drawBitmap(Bitmap bitmap, int w, int h, int x, int y) {
+
+		drawRaster(scaleRaster(bitmap.pixels, bitmap.width, bitmap.height, w, h), w, h, x, y);
+
+	}
+	
+	// Culls and renders a raster onto the view sport
+	void drawRaster(int[] p, int w, int h, int x, int y) {
 		
 		// Preallocate variables
 		int startX, endX, startY, endY, offset;
