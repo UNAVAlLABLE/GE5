@@ -31,7 +31,7 @@ class GameRender extends Canvas {
 	int yOffset = 0;
 	
 	// Temporary
-	int[] test = new int[1000000];
+	int[] test = new int[4000000];
 
 	GameRender(int width, int height) {
 		
@@ -40,11 +40,11 @@ class GameRender extends Canvas {
 		
 		setFocusable(false);
 		setIgnoreRepaint(true);
+		
+		for(int i = 0; i < test.length; i++)
+			test[i] = (int) (Math.random() * Integer.MAX_VALUE);
 				
 	}
-	
-	
-	
 	
 	void resizeImage(int width, int height) {
 
@@ -56,7 +56,6 @@ class GameRender extends Canvas {
 		
 	}
 	
-
 	void render(Scene scene) {
 		
 		bufferStrategy = getBufferStrategy();
@@ -67,11 +66,11 @@ class GameRender extends Canvas {
 		if(Input.down)yOffset += 10;
 		if(Input.left)xOffset -= 10;
 		if(Input.right)xOffset += 10;
-		if(Input.e && tileSize >= 4)tileSize -= 1 + 0.1 * tileSize;
-		if(Input.q && tileSize <= 256)tileSize += 1 + 0.1 * tileSize;
+		if(Input.e && tileSize >= 2)tileSize -= 1 + 0.1 * tileSize;
+		if(Input.q && tileSize <= 512)tileSize += 1 + 0.1 * tileSize;
 		
 		// Temporary
-		renderTilemap(new Bitmap(test, 1000, 1000));
+		renderTilemap(new Bitmap(test, 2000, 2000));
 				
 		graphics.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 
