@@ -1,6 +1,6 @@
 package ge5.engine;
 
-public abstract class Scene {
+public abstract class Scene implements tickable {
 			
 	protected void load() {
 
@@ -10,8 +10,10 @@ public abstract class Scene {
 
 	}
 	
-	protected abstract void start();
-	
-	protected abstract void tick(int skips);
+	public String toString () {
+		
+		return this.getClass().getName();
+		
+	}
 	
 }

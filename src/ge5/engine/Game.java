@@ -4,39 +4,30 @@ package ge5.engine;
 
 import java.util.Hashtable;
 
-public abstract class Game{
+public abstract class Game implements Runnable, tickable {
 
 	// Defaults
-	protected String title = "Untitled Game";
-	protected int tickRate = 30;
-	protected int width = 400;
-	protected int height = 300;
+	protected static String title = "Untitled Game";
+	protected static int tickRate = 30;
+	protected static int width = 400;
+	protected static int height = 300;
 
-	protected final Window window;
-	protected final Input input;
+	protected static boolean isPaused = false;
 
-	protected boolean isPaused = false;
-
-	protected Hashtable<String, Scene> scenes;
+	protected static Hashtable<String, Scene> scenes;
 	
-	protected Scene loadedScene;
-	protected String loadedSceneName;
+	protected static Scene loadedScene;
+	protected static String loadedSceneName;
 	
-	protected long gameTicks = 0;
-	protected long skippedTicks = 0;
-	protected long sceneTicks = 0;
-
-	protected Game() {
+	protected static long gameTicks = 0;
+	protected static long skippedTicks = 0;
+	protected static long sceneTicks = 0;
+	
+	public void run(){
 		
 		init();
 
-		input = new Input();
-
-		window = new Window(this, input, title, width, height);
-
-	}
-	
-	void startGame(){
+		new Window(title, width, height);
 		
 		scenes = GameLoader.scenes;
 		
@@ -49,56 +40,7 @@ public abstract class Game{
 		gameLoop2();
 		
 	}
-
-//	private void gameLoop() {
-//
-//		long fixedTickTime = (1000000000L / tickRate);
-//		long accumulatedTime = fixedTickTime;
-//		long now;
-//		long lastTime = System.nanoTime();
-//		int skips;
-//
-//		while (true) {
-//
-//			now = System.nanoTime();
-//
-//			accumulatedTime += now - lastTime;
-//
-//			lastTime = now;
-//
-//			if (accumulatedTime >= fixedTickTime) {
-//				
-//				skips = (int) (accumulatedTime / fixedTickTime);
-//
-//				tick(skips);
-//				
-//				if(skips > 1){
-//					
-//					System.out.println("Skipped " + (skips-1) + " ticks");
-//					
-//				}
-//
-//				if (isPaused == false) {
-//
-//					loadedScene.tick(skips);
-//
-//				}
-//
-//				now = System.nanoTime();
-//				window.renderGame(loadedScene);
-//				System.out.println((System.nanoTime() - now) / 1000000.0f);
-//				
-//				input.clear();
-//
-//				accumulatedTime -= fixedTickTime * skips;
-//
-//			}
-//
-//		}
-//
-//	}
 	
-	// Second game loop that allows 1 second to catch up before skipping ticks
 	private void gameLoop2() {
 		
 		// Maximum amount of time each tick should last
@@ -118,7 +60,7 @@ public abstract class Game{
 			owedTime += now - lastTime;
 			lastTime = now;
 			
-			while (owedTime >= fixedTickTime) {
+			if (owedTime >= fixedTickTime) {
 				
 				skips = 1 + owedTime / (fixedTickTime * tickRate);
 				
@@ -128,6 +70,14 @@ public abstract class Game{
 				}
 				
 				tick((int) skips);
+				
+				if(Input.up)GameRender.yOffset -= 10 * skips;
+				if(Input.down)GameRender.yOffset += 10 * skips;
+				if(Input.left)GameRender.xOffset -= 10 * skips;
+				if(Input.right)GameRender.xOffset += 10 * skips;
+				if(Input.e && GameRender.tileSize >= 2)GameRender.tileSize -= 1 + 0.1 * GameRender.tileSize * skips;
+				if(Input.q && GameRender.tileSize <= 512)GameRender.tileSize += 1 + 0.1 * GameRender.tileSize * skips;
+				if(Input.space){GameRender.xOffset = 0; GameRender.yOffset = 0;}
 
 				if (isPaused == false) {
 					loadedScene.tick((int) skips);
@@ -135,8 +85,7 @@ public abstract class Game{
 				}
 				
 				gameTicks += skips;
-				window.renderGame(loadedScene);
-				input.clear();
+				Window.gameRender.render();
 				
 				owedTime -= fixedTickTime * skips;		
 												
@@ -195,11 +144,5 @@ public abstract class Game{
 		isPaused = false;
 
 	}
-
-	protected abstract void init();
-
-	protected abstract void start();
-
-	protected abstract void tick(int skips);
 
 }

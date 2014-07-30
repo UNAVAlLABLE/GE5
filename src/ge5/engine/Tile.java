@@ -1,6 +1,6 @@
 package ge5.engine;
 
-public abstract class Tile {
+public abstract class Tile{
 	
 	void load(){
 		

@@ -1,6 +1,6 @@
 package ge5.engine;
 
-public abstract class Entity {
+public abstract class Entity implements tickable{
 	
 	void load(){
 		
@@ -9,7 +9,5 @@ public abstract class Entity {
 	void unload(){
 		
 	}
-	
-	protected abstract void tick(int skips);
 
 }

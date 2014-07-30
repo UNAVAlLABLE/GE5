@@ -23,12 +23,12 @@ class GameRender extends Canvas {
 	private GraphicsConfiguration config;
 	
 	// The main raster of the view port
-	private int[] pixels;
+	private volatile int[] pixels;
 	
 	// The world position of the top left corner of the view port
-	int tileSize = 32;
-	int xOffset = 0;
-	int yOffset = 0;
+	static int tileSize = 32;
+	static int xOffset = 0;
+	static int yOffset = 0;
 	
 	// Temporary
 	int[] test = new int[4000000];
@@ -56,19 +56,11 @@ class GameRender extends Canvas {
 		
 	}
 	
-	void render(Scene scene) {
+	void render() {
 		
 		bufferStrategy = getBufferStrategy();
 		graphics = (Graphics2D) bufferStrategy.getDrawGraphics();
 				
-		// Temporary
-		if(Input.up)yOffset -= 10;
-		if(Input.down)yOffset += 10;
-		if(Input.left)xOffset -= 10;
-		if(Input.right)xOffset += 10;
-		if(Input.e && tileSize >= 2)tileSize -= 1 + 0.1 * tileSize;
-		if(Input.q && tileSize <= 512)tileSize += 1 + 0.1 * tileSize;
-		
 		// Temporary
 		renderTilemap(new Bitmap(test, 2000, 2000));
 				
@@ -111,9 +103,9 @@ class GameRender extends Canvas {
 			}
 			
 		}
-			
+		
 	}
-	
+		
 	// Uses drawRaster to cull and render a buffered image with its own width and height
 	void drawBufferedImage(BufferedImage i, int x, int y) {
 

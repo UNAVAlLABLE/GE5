@@ -6,20 +6,10 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
 public class Input implements KeyListener, MouseWheelListener {
-		
-	private int scrollWheelAxis = 0;
-	
+			
 	public static boolean up, down, left, right, space, e, q;
 		
 	protected Input() {}
-	
-	protected void clear() {
-		scrollWheelAxis = 0;
-	}
-	
-	public int getMouseWheelAxis() {
-		return scrollWheelAxis;
-	}
 
 	@Override
 	public void keyPressed(KeyEvent event) {
@@ -83,8 +73,8 @@ public class Input implements KeyListener, MouseWheelListener {
 	}
 
 	@Override
-	public void mouseWheelMoved(MouseWheelEvent e) {
-		scrollWheelAxis -= e.getWheelRotation();
+	public void mouseWheelMoved(MouseWheelEvent arg0) {
+		
 	}
 
 }

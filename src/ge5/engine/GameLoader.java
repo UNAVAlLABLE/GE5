@@ -55,7 +55,6 @@ public class GameLoader{
 				
 				game = (Game) c.newInstance();
 				System.out.println("Found game class  " + s);
-				continue;
 				
 			}
 			
@@ -68,9 +67,7 @@ public class GameLoader{
 			
 		}
 		
-		System.out.println();
-		
-		game.startGame();
+		new Thread(game).start();
 						
 	}
 	

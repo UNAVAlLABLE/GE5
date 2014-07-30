@@ -4,21 +4,21 @@ import ge5.engine.Game;
 
 public class TestGame extends Game {
 
-	protected void init() {
+	public void init() {
 		
 		width = 800;
 		height = 600;
-		tickRate = 30;
+		tickRate = 60;
 								
 	}
 
-	protected void start() {
+	public void start() {
 		
 		loadScene("game.Scene1");
 						
 	}
 
-	protected void tick(int skips) {
+	public void tick(int skips) {
 				
 	}
 
