@@ -13,7 +13,7 @@ import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
-class GameRender extends Canvas {
+class GameRender extends Canvas{
 
 	private static final long serialVersionUID = 1L;
 
@@ -35,17 +35,17 @@ class GameRender extends Canvas {
 
 	GameRender(int width, int height) {
 		
-		resizeImage(width, height);
-		setSize(width, height);
+		this.resizeImage(width, height);
+		this.setSize(width, height);
 		
-		setFocusable(false);
-		setIgnoreRepaint(true);
+		this.setFocusable(false);
+		this.setIgnoreRepaint(true);
 		
 		for(int i = 0; i < test.length; i++)
 			test[i] = (int) (Math.random() * Integer.MAX_VALUE);
 				
 	}
-	
+		
 	void resizeImage(int width, int height) {
 
 		config = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
@@ -56,7 +56,7 @@ class GameRender extends Canvas {
 		
 	}
 	
-	void render() {
+	void renderGame() {
 		
 		bufferStrategy = getBufferStrategy();
 		graphics = (Graphics2D) bufferStrategy.getDrawGraphics();
@@ -74,31 +74,25 @@ class GameRender extends Canvas {
 
 	}
 
-	void renderTilemap(Bitmap tileMap) {
-		
-		// Preallocate variables
-		int startX, endX, startY, endY, camX, camY, worldX, worldY;
+	void renderTilemap(final Bitmap tileMap) {
 		
 		// Finds the bounds (in world space) of the pixels that are both visible and are on the tile map
-		startX = (xOffset < 0) ? 0 : xOffset;
-		endX = (xOffset + image.getWidth() > tileMap.width * tileSize) ?  tileMap.width * tileSize : image.getWidth() + xOffset;
-		startY = (yOffset < 0) ? 0 : yOffset;
-		endY = (yOffset + image.getHeight() > tileMap.height * tileSize) ?  tileMap.height * tileSize : image.getHeight() + yOffset;
+		final int startX = (xOffset < 0) ? 0 : xOffset;
+		final int endX = (xOffset + image.getWidth() > tileMap.width * tileSize) ?  tileMap.width * tileSize : image.getWidth() + xOffset;
+		final int startY = (yOffset < 0) ? 0 : yOffset;
+		final int endY = (yOffset + image.getHeight() > tileMap.height * tileSize) ?  tileMap.height * tileSize : image.getHeight() + yOffset;
 		
 		// For each visible row in world space defined by the bounds above
-		for (worldY = startY; worldY < endY; worldY++) {
+		for (int worldY = startY; worldY < endY; worldY++) {
 			
 			// Find the corresponding row on the view port and multiply it by image.getWidth() to get its absolute position on pixels[]
-			camX = (worldY - yOffset) * image.getWidth();
+			int y = (worldY - yOffset) * image.getWidth();
 			
 			// For each visible column in world space defined by the bounds above
-			for (worldX = startX; worldX < endX; worldX++) {
-				
-				// Finds the corresponding column on the view port
-				camY = (worldX - xOffset);
+			for (int worldX = startX; worldX < endX; worldX++) {
 				
 				// Temporary
-				pixels[camX + camY] = tileMap.pixels[worldX/tileSize + ((worldY/tileSize) * tileMap.width)];
+				pixels[(worldX - xOffset) + y] = tileMap.pixels[worldX/tileSize + ((worldY/tileSize) * tileMap.width)];
 				
 			}
 			

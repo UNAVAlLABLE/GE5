@@ -3,13 +3,13 @@ package game;
 import ge5.engine.Game;
 
 public class TestGame extends Game {
-
-	public void init() {
+	
+	public TestGame () {
 		
 		width = 800;
 		height = 600;
 		tickRate = 60;
-								
+		
 	}
 
 	public void start() {

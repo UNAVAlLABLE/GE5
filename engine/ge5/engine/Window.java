@@ -16,24 +16,20 @@ class Window extends Frame {
     Window(String title, int width, int height) {
     	
     	setTitle(title);
+    	setWindowIcon("icon.png");
     	
-		setIgnoreRepaint(true);
-		setResizable(false);
-		
 		input = new Input();
-		
 		addKeyListener(input);
-		addMouseWheelListener(input);
-		
-		setWindowIcon("icon.png");
 		
 		gameRender = new GameRender(width, height);
 		add(gameRender);
 		
 		pack();
 		center();
+		requestFocus();		
+		setIgnoreRepaint(true);
+		setResizable(false);
 		setVisible(true);
-		requestFocus();
 		
 		// Has to be called after setVisible
 		gameRender.createBufferStrategy(2);
@@ -46,7 +42,7 @@ class Window extends Frame {
 				
 			}
 		});
-
+		
 	}
     
     void setWindowIcon(String path){
