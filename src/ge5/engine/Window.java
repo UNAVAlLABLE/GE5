@@ -1,4 +1,4 @@
-package ge5;
+package ge5.engine;
 
 import java.awt.Frame;
 import java.awt.event.WindowAdapter;
@@ -10,22 +10,25 @@ class Window extends Frame {
 	
 	private static final long serialVersionUID = 1L;
 	
-	private GameRender render;
+	static GameRender gameRender;
+	static Input input;
 			    
-    Window(Game game, Input input, String title, int width, int height) {
+    Window(String title, int width, int height) {
     	
     	setTitle(title);
     	
 		setIgnoreRepaint(true);
 		setResizable(false);
 		
+		input = new Input();
+		
 		addKeyListener(input);
 		addMouseWheelListener(input);
 		
-		setWindowIcon("icon.bmp");
+		setWindowIcon("icon.png");
 		
-		render = new GameRender(width, height);
-		add(render);
+		gameRender = new GameRender(width, height);
+		add(gameRender);
 		
 		pack();
 		center();
@@ -33,7 +36,7 @@ class Window extends Frame {
 		requestFocus();
 		
 		// Has to be called after setVisible
-		render.createBufferStrategy(2);
+		gameRender.createBufferStrategy(2);
 		
 		//Ends the program when the 'x' is pressed on the window
 		addWindowListener(new WindowAdapter() {
@@ -58,12 +61,6 @@ class Window extends Frame {
 				
 		}
 
-    }
-    
-    void renderGame(Scene scene) {
-
-    	render.render(scene);
-    
     }
 	
 	void center() {

@@ -1,4 +1,4 @@
-package ge5;
+package ge5.engine;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -6,25 +6,15 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
 public class Input implements KeyListener, MouseWheelListener {
-		
-	private int scrollWheelAxis = 0;
-	
-	public boolean up, down, left, right, space;
+			
+	public static boolean up, down, left, right, space, e, q;
 		
 	protected Input() {}
-	
-	protected void clear() {
-		scrollWheelAxis = 0;
-	}
-	
-	public int getMouseWheelAxis() {
-		return scrollWheelAxis;
-	}
 
 	@Override
-	public void keyPressed(KeyEvent e) {
+	public void keyPressed(KeyEvent event) {
 		
-		int keyCode = e.getKeyCode();
+		int keyCode = event.getKeyCode();
 
 		if (keyCode == KeyEvent.VK_UP || keyCode == KeyEvent.VK_W)
 			up = true;
@@ -40,13 +30,19 @@ public class Input implements KeyListener, MouseWheelListener {
 
 		if (keyCode == KeyEvent.VK_SPACE)
 			space = true;
+		
+		if (keyCode == KeyEvent.VK_E)
+			e = true;
+
+		if (keyCode == KeyEvent.VK_Q)
+			q = true;
 
 	}
 
 	@Override
-	public void keyReleased(KeyEvent e) {
+	public void keyReleased(KeyEvent event) {
 		
-		int keyCode = e.getKeyCode();
+		int keyCode = event.getKeyCode();
 
 		if (keyCode == KeyEvent.VK_UP || keyCode == KeyEvent.VK_W)
 			up = false;
@@ -59,6 +55,12 @@ public class Input implements KeyListener, MouseWheelListener {
 
 		if (keyCode == KeyEvent.VK_RIGHT || keyCode == KeyEvent.VK_D)
 			right = false;
+		
+		if (keyCode == KeyEvent.VK_E)
+			e = false;
+
+		if (keyCode == KeyEvent.VK_Q)
+			q = false;
 
 		if (keyCode == KeyEvent.VK_SPACE)
 			space = false;
@@ -66,13 +68,13 @@ public class Input implements KeyListener, MouseWheelListener {
 	}
 
 	@Override
-	public void keyTyped(KeyEvent e) {
+	public void keyTyped(KeyEvent event) {
 		
 	}
 
 	@Override
-	public void mouseWheelMoved(MouseWheelEvent e) {
-		scrollWheelAxis -= e.getWheelRotation();
+	public void mouseWheelMoved(MouseWheelEvent arg0) {
+		
 	}
 
 }
