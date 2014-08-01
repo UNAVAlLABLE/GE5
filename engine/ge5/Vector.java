@@ -1,4 +1,4 @@
-package ge5.engine;
+package ge5;
 
 public class Vector {
 	

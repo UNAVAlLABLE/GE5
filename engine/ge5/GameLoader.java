@@ -1,4 +1,4 @@
-package ge5.engine;
+package ge5;
 
 import java.io.InputStream;
 import java.util.Arrays;
@@ -30,7 +30,7 @@ public class GameLoader{
 			if(Scene.class.isAssignableFrom(c)){
 				
 				scenes.put(s, (Scene) c.newInstance());
-				System.out.println("Found scene class " + s);
+				System.out.println("Found scene " + s);
 				continue;
 				
 			}
@@ -38,7 +38,7 @@ public class GameLoader{
 			if(Entity.class.isAssignableFrom(c)){
 				
 				entities.put(s, (Entity) c.newInstance());
-				System.out.println("Found entity class " + s);
+				System.out.println("Found entity " + s);
 				continue;
 				
 			}
@@ -46,7 +46,7 @@ public class GameLoader{
 			if(Tile.class.isAssignableFrom(c)){
 				
 				tiles.put(s, (Tile) c.newInstance());
-				System.out.println("Found tile class " + s);
+				System.out.println("Found tile " + s);
 				continue;
 				
 			}
@@ -54,7 +54,7 @@ public class GameLoader{
 			if(Game.class.isAssignableFrom(c)){
 				
 				game = (Game) c.newInstance();
-				System.out.println("Found game class  " + s);
+				System.out.println("Found game  " + s);
 				
 			}
 			

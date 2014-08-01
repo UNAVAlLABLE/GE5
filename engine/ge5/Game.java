@@ -1,6 +1,6 @@
 // This is the superclass for all game classes
 
-package ge5.engine;
+package ge5;
 
 import java.util.Hashtable;
 
@@ -67,8 +67,8 @@ public abstract class Game implements tickable, Runnable {
 				if(Input.down)GameRender.yOffset += 10 * skips;
 				if(Input.left)GameRender.xOffset -= 10 * skips;
 				if(Input.right)GameRender.xOffset += 10 * skips;
-				if(Input.e && GameRender.tileSize >= 2)GameRender.tileSize -= 1 + 0.1 * GameRender.tileSize * skips;
-				if(Input.q && GameRender.tileSize <= 512)GameRender.tileSize += 1 + 0.1 * GameRender.tileSize * skips;
+				if(Input.e && GameRender.tileSize > 0)GameRender.tileSize -= 1;
+				if(Input.q && GameRender.tileSize < 10)GameRender.tileSize += 1;
 				if(Input.space){GameRender.xOffset = 0; GameRender.yOffset = 0;}
 
 				if (isPaused == false) 
@@ -85,26 +85,30 @@ public abstract class Game implements tickable, Runnable {
 	}
 
 	protected void loadScene(String sceneKey) {
+		
+		System.out.println();
 
 		if(scenes.get(sceneKey) != null) {
 		
 			if(loadedScene != null){
 				loadedScene.unload();
-				System.out.println("Succesfully unloaded \"" + loadedSceneKey + "\"");
+				System.out.println("Unloaded " + loadedSceneKey + "");
 			}
 			
 			loadedScene = scenes.get(sceneKey);
 			loadedScene.load();
-			System.out.println("Succesfully loaded \"" + sceneKey + "\"");
+			System.out.println("Loaded " + sceneKey + "");
 			loadedScene.start();
 			
 			loadedSceneKey = sceneKey;
 			
 		} else {
 			
-			System.out.println("Failed to load \"" + sceneKey + "\"");
+			System.out.println("Failed to load " + sceneKey + "");
 			
 		}
+		
+		System.out.println();
 		
 	}
 	

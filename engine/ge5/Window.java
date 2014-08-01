@@ -1,4 +1,4 @@
-package ge5.engine;
+package ge5;
 
 import java.awt.Frame;
 import java.awt.event.WindowAdapter;
@@ -48,7 +48,7 @@ class Window extends Frame {
     void setWindowIcon(String path){
     	
 		try {
-				
+			
 			setIconImage(ImageIO.read(GameLoader.getFileData(path)));
 				
 		} catch (Exception e) {
