@@ -5,14 +5,10 @@
 package ge5;
 
 import java.awt.Canvas;
-import java.awt.Graphics2D;
-import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsEnvironment;
-import java.awt.Transparency;
+import java.awt.Graphics;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
-
 import java.util.Arrays;
 
 class GameRender extends Canvas{
@@ -21,8 +17,9 @@ class GameRender extends Canvas{
 
 	private BufferedImage image;
 	private BufferStrategy bufferStrategy;
-	private Graphics2D graphics;
-	private GraphicsConfiguration config;
+	private Graphics graphics;
+	
+	//private GraphicsConfiguration config;
 	
 	// The main raster of the view port
 	public volatile static int[] pixels;
@@ -33,44 +30,68 @@ class GameRender extends Canvas{
 	// The world position of the top left corner of the view port
 	static int xOffset = 0;
 	static int yOffset = 0;
-	int x;
+	
+	final private int baseImageWidth;
+	final private int baseImageHeight;
+	private static int imageWidth;
+	private static int imageHeight;
+	
+	private static float lastScale = 1;
+	static float scale = 1;
 	
 	// Temporary
+	int rowsToDraw;
 	public int[] test = new int[4000000];
 
 	GameRender(int width, int height) {
 		
-		this.resizeImage(width, height);
-		this.setSize(width, height);
+		imageWidth = width;
+		imageHeight = height;
+		baseImageWidth = imageWidth;
+		baseImageHeight = imageHeight;
 		
+		this.setSize(imageWidth, imageHeight);
+		//config = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
+		this.resizeImage(imageWidth, imageHeight);
 		this.setFocusable(false);
 		this.setIgnoreRepaint(true);
 		
+		// Temporary
 		for(int i = 0; i < test.length; i++)
 			test[i] = (int) (Math.random() * Integer.MAX_VALUE);
-				
+		
 	}
 		
 	void resizeImage(int width, int height) {
-
-		config = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
 		
-		image = config.createCompatibleImage(width, height, Transparency.OPAQUE);
+		//image = config.createCompatibleImage(width, height, Transparency.OPAQUE);
 		
+		image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 		
 	}
 	
 	void renderGame() {
 		
+		if(scale != lastScale){
+			
+			imageWidth = (int) (baseImageWidth * scale);
+			imageHeight = (int) (baseImageHeight * scale);
+		
+			resizeImage(imageWidth, imageHeight);
+			
+			lastScale = scale;
+			
+		}
+		
 		bufferStrategy = getBufferStrategy();
-		graphics = (Graphics2D) bufferStrategy.getDrawGraphics();
+		graphics = bufferStrategy.getDrawGraphics();
 				
 		// Temporary
 		renderTilemap2(new Bitmap(test, 2000, 2000));
 								
 		graphics.drawImage(image, 0, 0, getWidth(), getHeight(), null);
-
+				
 		bufferStrategy.show();
 		graphics.dispose();
 		
@@ -80,14 +101,11 @@ class GameRender extends Canvas{
 
 	void renderTilemap(final Bitmap tileMap) {
 		
-		final int viewWidth = image.getWidth();
-		final int viewHeight = image.getHeight();
-		
 		// Finds the bounds (in world space) of the pixels that are both visible and are on the tile map
 		final int startX = (xOffset < 0) ? 0 : xOffset;
-		final int endX = (xOffset + viewWidth > tileMap.width<<tileSize) ?  tileMap.width<<tileSize :viewWidth + xOffset;
+		final int endX = (xOffset + imageWidth > tileMap.width<<tileSize) ?  tileMap.width<<tileSize :imageWidth + xOffset;
 		final int startY = (yOffset < 0) ? 0 : yOffset;
-		final int endY = (yOffset + viewHeight > tileMap.height<<tileSize) ?  tileMap.height<<tileSize : viewHeight + yOffset;
+		final int endY = (yOffset + imageHeight > tileMap.height<<tileSize) ?  tileMap.height<<tileSize : imageHeight + yOffset;
 		
 		int pixelsY, mapY, worldX;
 		
@@ -95,7 +113,7 @@ class GameRender extends Canvas{
 		for (int worldY = startY; worldY < endY; worldY++) {
 			
 			// Find the corresponding row on the view port and multiply it by image.getWidth() to get its absolute position on pixels[]
-			pixelsY = (worldY - yOffset) * viewWidth;
+			pixelsY = (worldY - yOffset) * imageWidth;
 			
 			// Finds the y of the map tile the pixel occupies and multiply it by tileMap.width
 			mapY = (worldY>>tileSize) * tileMap.width;
@@ -114,74 +132,50 @@ class GameRender extends Canvas{
 	
 	void renderTilemap2(final Bitmap tileMap) {
 		
-		final int viewWidth = image.getWidth();
-		final int viewHeight = image.getHeight();
-		
-		// Finds the bounds (in world space) of the pixels that are both visible and are on the tile map
 		final int startX = (xOffset < 0) ? 0 : xOffset;
-		final int endX = (xOffset + viewWidth > tileMap.width<<tileSize) ?  tileMap.width<<tileSize :viewWidth + xOffset;
+		final int endX = (xOffset + imageWidth > tileMap.width<<tileSize) ?  tileMap.width<<tileSize :imageWidth + xOffset;
 		final int startY = (yOffset < 0) ? 0 : yOffset;
-		final int endY = (yOffset + viewHeight > tileMap.height<<tileSize) ?  tileMap.height<<tileSize : viewHeight + yOffset;
+		final int endY = (yOffset + imageHeight > tileMap.height<<tileSize) ?  tileMap.height<<tileSize : imageHeight + yOffset;
 		
-		x = endY - startY;
-		
-		Thread t1 = new Thread() {
-
-			public void run() {
+		rowsToDraw = endY - startY;
 				
-				int pixelsY, mapY, worldX;
+		Thread t1 = new Thread( () -> {
+				
+				int pixelsY, mapY, worldX, worldY;
 
-				// For each visible row in world space defined by the bounds above
-				for (int worldY = startY; worldY < endY && x > 0; worldY++) {
+				for (worldY = startY; worldY < endY && rowsToDraw > 0; worldY++) {
 
-					// Find the corresponding row on the view port and multiply it by image.getWidth() to get its absolute position on pixels[]
-					pixelsY = (worldY - yOffset) * viewWidth;
-
-					// Finds the y of the map tile the pixel occupies and multiply it by tileMap.width
+					pixelsY = (worldY - yOffset) * imageWidth;
 					mapY = (worldY >> tileSize) * tileMap.width;
 
-					// For each visible column in world space defined by the bounds above
-					for (worldX = startX; worldX < endX; worldX++) {
-
-						// Temporary
+					for (worldX = startX; worldX < endX; worldX++)
+						
 						pixels[(worldX - xOffset) + pixelsY] = tileMap.pixels[(worldX >> tileSize) + mapY];
 
-					}
+					rowsToDraw--;
 					
-					x--;
-
 				}
-			}
-		};
-		
-		Thread t2 = new Thread() {
-
-			public void run() {
 				
-				int pixelsY, mapY, worldX;
+		});
+		
+		Thread t2 = new Thread( () -> {
 
-				// For each visible row in world space defined by the bounds above
-				for (int worldY = endY - 1; worldY >= startY && x > 0; worldY--) {
+				int pixelsY, mapY, worldX, worldY;
 
-					// Find the corresponding row on the view port and multiply it by image.getWidth() to get its absolute position on pixels[]
-					pixelsY = (worldY - yOffset) * viewWidth;
-
-					// Finds the y of the map tile the pixel occupies and multiply it by tileMap.width
+				for (worldY = endY - 1; worldY >= startY && rowsToDraw > 0; worldY--) {
+					
+					pixelsY = (worldY - yOffset) * imageWidth;
 					mapY = (worldY >> tileSize) * tileMap.width;
 
-					// For each visible column in world space defined by the bounds above
-					for (worldX = startX; worldX < endX; worldX++) {
-
-						// Temporary
+					for (worldX = startX; worldX < endX; worldX++) 
+						
 						pixels[(worldX - xOffset) + pixelsY] = tileMap.pixels[(worldX >> tileSize) + mapY];
 
-					}
-					
-					x--;
+					rowsToDraw--;
 
 				}
-			}
-		};
+				
+		});
 		
 		t1.start();
 		t2.start();
@@ -220,15 +214,12 @@ class GameRender extends Canvas{
 	
 	// Culls and renders a raster onto the view sport
 	public void drawRaster(int[] p, int w, int h, int x, int y) {
-		
-		final int viewWidth = image.getWidth();
-		final int viewHeight = image.getHeight();
 
 		// Finds the bounds (in world space) of the pixels that are visible and are on the tile map
 		final int startX = (x < 0) ? 0 : x;
-		final int endX = (x + w > viewWidth) ? viewWidth : w + x;
+		final int endX = (x + w > imageWidth) ? imageWidth : w + x;
 		final int startY = (y < 0) ? 0 : y;
-		final int endY = (y + h > viewHeight) ? viewHeight : h + y;
+		final int endY = (y + h > imageHeight) ? imageHeight : h + y;
 		
 		int offset, i;
 		
@@ -236,7 +227,7 @@ class GameRender extends Canvas{
 		for (int row = startY; row < endY; row++) {
 			
 			// Calculate the position of the first pixel of the row on the view port
-			offset = (row * viewWidth + startX);
+			offset = (row * imageWidth + startX);
 			
 			// For each pixel in the row
 			for (i = 0; i < endX - startX; i++) {
@@ -248,22 +239,25 @@ class GameRender extends Canvas{
 		}
 
 	}
-
+	
+	// Untested optimized version of scale()
 	public static int[] scaleRaster(int[] pixels, int w1, int h1, int w2, int h2) {
 
 		int[] result = new int[w2 * h2];
 
-		int x1, y1, x2, y2;
+		int x1, y1, x2, y2, t;
 
 		for (y2 = 0; y2 < y2; y2++) {
 			
 			y1 = y2 * h1 / h2 * w1;
+			
+			t = y2 * w2;
 
 			for (x2 = 0; x2 < w2; x2++) {
 
 				x1 = x2 * w1 / w2;
 
-				result[x2 + y2 * w2] = pixels[x1 + y1];
+				result[x2 + t] = pixels[x1 + y1];
 
 			}
 
@@ -272,5 +266,29 @@ class GameRender extends Canvas{
 		return result;
 
 	}
+	
+//	public int[] scale(int[] pixels, int w1, int h1, int w2, int h2) {
+//
+//		int[] result = new int[w2 * h2];
+//
+//		int x1, y1, x2, y2;
+//
+//		for (x2 = 0; x2 < w2; x2++) {
+//
+//			for (y2 = 0; y2 < h2; y2++) {
+//
+//				// Coordinates of the pixel to sample from the original array
+//				x1 = x2 * w1 / w2;
+//				y1 = y2 * h1 / h2;
+//
+//				result[x2 + y2 * w2] = pixels[x1 + y1 * w1];
+//
+//			}
+//
+//		}
+//
+//		return result;
+//
+//	}
 
 }

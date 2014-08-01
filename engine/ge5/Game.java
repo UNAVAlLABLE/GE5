@@ -67,8 +67,13 @@ public abstract class Game implements tickable, Runnable {
 				if(Input.down)GameRender.yOffset += 10 * skips;
 				if(Input.left)GameRender.xOffset -= 10 * skips;
 				if(Input.right)GameRender.xOffset += 10 * skips;
-				if(Input.e && GameRender.tileSize > 0)GameRender.tileSize -= 1;
-				if(Input.q && GameRender.tileSize < 10)GameRender.tileSize += 1;
+				
+				//if(Input.e && GameRender.tileSize > 0)GameRender.tileSize -= 1;
+				//if(Input.q && GameRender.tileSize < 9)GameRender.tileSize += 1;
+				
+				if(Input.e && GameRender.scale >= 0.1)GameRender.scale -= 0.01;				
+				if(Input.q && GameRender.scale < 1)GameRender.scale += 0.01;
+				
 				if(Input.space){GameRender.xOffset = 0; GameRender.yOffset = 0;}
 
 				if (isPaused == false) 
