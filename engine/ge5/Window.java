@@ -34,7 +34,7 @@ class Window extends Frame {
 		// Has to be called after setVisible
 		gameRender.createBufferStrategy(2);
 		
-		//Ends the program when the 'x' is pressed on the window
+		// Ends the program when the 'x' is pressed on the window
 		addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent we) {
 				
@@ -42,7 +42,7 @@ class Window extends Frame {
 				
 			}
 		});
-		
+				
 	}
     
     void setWindowIcon(String path){

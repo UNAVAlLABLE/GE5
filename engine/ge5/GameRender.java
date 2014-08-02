@@ -86,9 +86,8 @@ class GameRender extends Canvas{
 		
 		bufferStrategy = getBufferStrategy();
 		graphics = bufferStrategy.getDrawGraphics();
-				
-		// Temporary
-		renderTilemap2(new Bitmap(test, 2000, 2000));
+		
+		renderTilemap2(new Bitmap(test,4000,4000));
 								
 		graphics.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 				
@@ -139,7 +138,7 @@ class GameRender extends Canvas{
 		
 		rowsToDraw = endY - startY;
 				
-		Thread t1 = new Thread( () -> {
+		Thread t1 = new Thread (() -> {
 				
 				int pixelsY, mapY, worldX, worldY;
 
@@ -155,10 +154,10 @@ class GameRender extends Canvas{
 					rowsToDraw--;
 					
 				}
-				
+												
 		});
 		
-		Thread t2 = new Thread( () -> {
+		Thread t2 = new Thread (() -> {
 
 				int pixelsY, mapY, worldX, worldY;
 
@@ -174,9 +173,9 @@ class GameRender extends Canvas{
 					rowsToDraw--;
 
 				}
-				
+								
 		});
-		
+				
 		t1.start();
 		t2.start();
 		
@@ -237,7 +236,7 @@ class GameRender extends Canvas{
 			}
 			
 		}
-
+		
 	}
 	
 	// Untested optimized version of scale()
@@ -266,29 +265,5 @@ class GameRender extends Canvas{
 		return result;
 
 	}
-	
-//	public int[] scale(int[] pixels, int w1, int h1, int w2, int h2) {
-//
-//		int[] result = new int[w2 * h2];
-//
-//		int x1, y1, x2, y2;
-//
-//		for (x2 = 0; x2 < w2; x2++) {
-//
-//			for (y2 = 0; y2 < h2; y2++) {
-//
-//				// Coordinates of the pixel to sample from the original array
-//				x1 = x2 * w1 / w2;
-//				y1 = y2 * h1 / h2;
-//
-//				result[x2 + y2 * w2] = pixels[x1 + y1 * w1];
-//
-//			}
-//
-//		}
-//
-//		return result;
-//
-//	}
 
 }

@@ -11,16 +11,16 @@ public class GameLoader{
 	static Game game;
 	
 	static Hashtable<String, Scene> scenes = new Hashtable<String, Scene>();
-	static Hashtable<String, Class> otherClasses = new Hashtable<String, Class>();
+	static Hashtable<String, Class<?>> classes = new Hashtable<String, Class<?>>();
 	
 	
-	public static void main(String[] args) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+	public static void main(String[] args) throws Exception {
 		
 		new GameLoader(args);
 				
 	}
 	
-	GameLoader(String[] classNames) throws InstantiationException, IllegalAccessException, ClassNotFoundException{
+	GameLoader(String[] classNames) throws Exception{
 		
 		Arrays.sort(classNames);
 		
@@ -44,7 +44,7 @@ public class GameLoader{
 				
 			}
 				
-			otherClasses.put(s, (Class<?>) c.newInstance());
+			classes.put(s, (Class<?>) c.newInstance());
 			System.out.println("Found unspecified class " + s);
 			
 		}
@@ -61,9 +61,9 @@ public class GameLoader{
 	}
 	
 	// Can be used to load images, sound, maps ... from a file
-	// TODO Currently has problems reaching absolute system paths and relatively parent directories
 	public static InputStream getFileData(String path) {
 		
+		// TODO Currently has problems reaching absolute system paths and relatively parent directories
 		return classLoader.getResourceAsStream(path);
 		
 	}

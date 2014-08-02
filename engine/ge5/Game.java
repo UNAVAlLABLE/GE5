@@ -125,12 +125,8 @@ public abstract class Game implements tickable, Runnable {
 		return loadedSceneKey;
 	}
 
-	protected void pause() {
-		isPaused = true;
-	}
-
-	protected void unpause() {
-		isPaused = false;
+	protected void setPaused(Boolean b) {
+		isPaused = b;
 	}
 
 }
