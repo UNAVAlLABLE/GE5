@@ -9,9 +9,10 @@ public class GameLoader{
 	static ClassLoader classLoader = ClassLoader.getSystemClassLoader();
 	
 	static Game game;
+	
 	static Hashtable<String, Scene> scenes = new Hashtable<String, Scene>();
-	static Hashtable<String, Tile> tiles = new Hashtable<String, Tile>();
-	static Hashtable<String, Entity> entities = new Hashtable<String, Entity>();
+	static Hashtable<String, Class> otherClasses = new Hashtable<String, Class>();
+	
 	
 	public static void main(String[] args) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		
@@ -34,29 +35,17 @@ public class GameLoader{
 				continue;
 				
 			}
-						
-			if(Entity.class.isAssignableFrom(c)){
-				
-				entities.put(s, (Entity) c.newInstance());
-				System.out.println("Found entity " + s);
-				continue;
-				
-			}
-			
-			if(Tile.class.isAssignableFrom(c)){
-				
-				tiles.put(s, (Tile) c.newInstance());
-				System.out.println("Found tile " + s);
-				continue;
-				
-			}
 			
 			if(Game.class.isAssignableFrom(c)){
 				
 				game = (Game) c.newInstance();
 				System.out.println("Found game  " + s);
+				continue;
 				
 			}
+				
+			otherClasses.put(s, (Class<?>) c.newInstance());
+			System.out.println("Found unspecified class " + s);
 			
 		}
 		
