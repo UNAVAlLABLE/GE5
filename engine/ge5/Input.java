@@ -7,36 +7,76 @@ import java.awt.event.MouseWheelListener;
 
 public class Input implements KeyListener, MouseWheelListener {
 			
-	public static boolean up, down, left, right, space, e, q;
+	public static boolean up, down, left, right, space, shift, e, q, f, r;
+	
 		
-	protected Input() {}
+	protected Input() {
+		
+	}
 
 	@Override
 	public void keyPressed(KeyEvent event) {
 		
 		int keyCode = event.getKeyCode();
-
-		if (keyCode == KeyEvent.VK_UP || keyCode == KeyEvent.VK_W)
-			up = true;
-
-		if (keyCode == KeyEvent.VK_DOWN || keyCode == KeyEvent.VK_S)
-			down = true;
-
-		if (keyCode == KeyEvent.VK_LEFT || keyCode == KeyEvent.VK_A)
-			left = true;
-
-		if (keyCode == KeyEvent.VK_RIGHT || keyCode == KeyEvent.VK_D)
-			right = true;
-
-		if (keyCode == KeyEvent.VK_SPACE)
-			space = true;
 		
-		if (keyCode == KeyEvent.VK_E)
-			e = true;
-
-		if (keyCode == KeyEvent.VK_Q)
-			q = true;
-
+		switch(keyCode){
+			
+			case KeyEvent.VK_UP: 
+			case KeyEvent.VK_W:
+			
+				up = true;
+				break;
+				
+			case KeyEvent.VK_LEFT: 
+			case KeyEvent.VK_A:
+			
+				left = true;
+				break;
+				
+			case KeyEvent.VK_DOWN: 
+			case KeyEvent.VK_S:
+			
+				down = true;
+				break;
+				
+			case KeyEvent.VK_RIGHT: 
+			case KeyEvent.VK_D:
+			
+				right = true;
+				break;
+				
+			case KeyEvent.VK_SPACE:
+				
+				space = true;
+				break;
+				
+			case KeyEvent.VK_SHIFT:
+				
+				shift = true;
+				break;
+				
+			case KeyEvent.VK_E:
+				
+				e = true;
+				break;
+				
+			case KeyEvent.VK_Q:
+				
+				q = true;
+				break;
+				
+			case KeyEvent.VK_F:
+				
+				f = true;
+				break;
+				
+			case KeyEvent.VK_R:
+				
+				r = true;
+				break;
+			
+		}
+			
 	}
 
 	@Override
@@ -44,27 +84,64 @@ public class Input implements KeyListener, MouseWheelListener {
 		
 		int keyCode = event.getKeyCode();
 
-		if (keyCode == KeyEvent.VK_UP || keyCode == KeyEvent.VK_W)
-			up = false;
-
-		if (keyCode == KeyEvent.VK_DOWN || keyCode == KeyEvent.VK_S)
-			down = false;
-
-		if (keyCode == KeyEvent.VK_LEFT || keyCode == KeyEvent.VK_A)
-			left = false;
-
-		if (keyCode == KeyEvent.VK_RIGHT || keyCode == KeyEvent.VK_D)
-			right = false;
+		switch(keyCode){
+			
+			case KeyEvent.VK_UP: 
+			case KeyEvent.VK_W:
+			
+				up = false;
+				break;
+				
+			case KeyEvent.VK_LEFT: 
+			case KeyEvent.VK_A:
+			
+				left = false;
+				break;
+				
+			case KeyEvent.VK_DOWN: 
+			case KeyEvent.VK_S:
+			
+				down = false;
+				break;
+				
+			case KeyEvent.VK_RIGHT: 
+			case KeyEvent.VK_D:
+			
+				right = false;
+				break;
+				
+			case KeyEvent.VK_SPACE:
+				
+				space = false;
+				break;
+				
+			case KeyEvent.VK_SHIFT:
+				
+				shift = false;
+				break;
+				
+			case KeyEvent.VK_E:
+				
+				e = false;
+				break;
+				
+			case KeyEvent.VK_Q:
+				
+				q = false;
+				break;
+				
+			case KeyEvent.VK_F:
+				
+				f = false;
+				break;
+				
+			case KeyEvent.VK_R:
+				
+				r = false;
+				break;
+			
+		}
 		
-		if (keyCode == KeyEvent.VK_E)
-			e = false;
-
-		if (keyCode == KeyEvent.VK_Q)
-			q = false;
-
-		if (keyCode == KeyEvent.VK_SPACE)
-			space = false;
-
 	}
 
 	@Override
