@@ -2,11 +2,20 @@ package ge5;
 
 import java.util.LinkedList;
 
-public class AsyncTask{
+public abstract class AsyncTask implements Runnable{
 	
 	private static final WorkerThread[] workerThreads;  
-	private static volatile LinkedList<Runnable> taskQueue = new LinkedList<Runnable>();
-
+	private static volatile LinkedList<AsyncTask> taskQueue = new LinkedList<AsyncTask>();
+	
+	private int iterations;
+	int iterator;
+	
+	// True if task has been completed
+	public Boolean isDone = false;
+	
+	// True if task is actually running on a thread
+	public Boolean isRunning = false;
+					
     static {
     	
     	// Gets number of processors (includes hyper threading)
@@ -14,7 +23,7 @@ public class AsyncTask{
     	
     	// Initializes each element as null
     	workerThreads = new WorkerThread[cores];
-    	    	
+    	
 		for(int i = 0; i < cores; i++){
 			
 			workerThreads[i] = new WorkerThread();
@@ -23,24 +32,60 @@ public class AsyncTask{
 		}
 		
     }
+    
+    public AsyncTask() {
+    	
+    	this(1);
+    	
+    }
 	
-	public AsyncTask(Runnable r) {
+	public AsyncTask(int i) {
 		
-        synchronized (taskQueue) {
+		if(i <= 0){
+			
+			System.out.print("Iteratoions must be larger thatn 0. Currently +" + i);
+			return;
+			
+		}
+		
+		iterations = i;
+				
+		synchronized (taskQueue) {
         	
-			taskQueue.addLast(r);
+			taskQueue.addLast(this);
 			taskQueue.notify();
 			
 		}
 		
 	}
 	
-	static class WorkerThread extends Thread {
+	protected int getIteration(){
 		
+		return iterator;
+		
+	}
+	
+	void start(){
+		
+		for(int i = 0; i < iterations; i++){
+			
+			iterator = i;			
+			run();
+			
+		}
+			
+		
+	}
+	
+	@Override
+	public abstract void run(); // This is to be over written by task caller
+	
+	static class WorkerThread extends Thread {
+				
 		@Override
 		public void run(){
 			
-			Runnable task;
+			AsyncTask task;
 			
 			while (true) {
 		    	
@@ -60,12 +105,16 @@ public class AsyncTask{
 		                	
 		            }
 		
-					task = (Runnable) taskQueue.removeFirst();
+					task = (AsyncTask) taskQueue.removeFirst();
+					
 		        }
 		
 		        try {
-		        			        	
-		        	task.run();		 
+		        	
+		        	task.isRunning = true;
+		        	task.start();	
+		        	task.isRunning = false;
+		        	task.isDone = true;
 		            
 		        }
 		        

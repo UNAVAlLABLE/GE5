@@ -82,7 +82,7 @@ class GameRender extends Canvas{
 		bufferStrategy = getBufferStrategy();
 		graphics = bufferStrategy.getDrawGraphics();
 		
-		renderTilemap(new Bitmap(test,4000,4000));
+		renderTilemap2(new Bitmap(test,4000,4000));
 								
 		graphics.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 				
