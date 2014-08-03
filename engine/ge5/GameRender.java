@@ -12,6 +12,9 @@ import java.awt.image.DataBufferInt;
 import java.util.Arrays;
 
 class GameRender extends Canvas{
+	
+	// TODO Combine zooming through changing tile size and zooming through changing the image size
+	// Probably better too do in a Camera class
 
 	private static final long serialVersionUID = 1L;
 
@@ -29,17 +32,17 @@ class GameRender extends Canvas{
 	static int xOffset = 0;
 	static int yOffset = 0;
 	
-	final private int baseImageWidth;
-	final private int baseImageHeight;
 	private static int imageWidth;
 	private static int imageHeight;
 	
-	private static float lastScale = 1;
 	static float scale = 1;
 	
 	// Temporary
 	int rowsToDraw;
 	public int[] test = new int[4000000];
+	final private int baseImageWidth;
+	final private int baseImageHeight;
+	private static float lastScale = 1;
 
 	GameRender(int width, int height) {
 		
@@ -124,6 +127,8 @@ class GameRender extends Canvas{
 		
 	}
 	
+	// Old added before AsyncTask was available
+	// TODO Set this to use AsyncTask
 	void renderTilemap2(final Bitmap tileMap) {
 		
 		final int startX = (xOffset < 0) ? 0 : xOffset;
@@ -175,7 +180,7 @@ class GameRender extends Canvas{
 		t2.start();
 		
 		while(t1.isAlive() || t2.isAlive());
-		
+				
 	}
 		
 	// Uses drawRaster to cull and render a buffered image with its own width and height
@@ -236,6 +241,8 @@ class GameRender extends Canvas{
 	
 	// Untested optimized version of scale()
 	public static int[] scaleRaster(int[] pixels, int w1, int h1, int w2, int h2) {
+		
+		// TODO test this
 
 		int[] result = new int[w2 * h2];
 

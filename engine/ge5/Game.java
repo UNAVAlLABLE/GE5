@@ -4,7 +4,7 @@ package ge5;
 
 import java.util.Hashtable;
 
-public abstract class Game implements tickable, Runnable {
+public abstract class Game implements tickable{
 
 	// Defaults
 	protected static String title = "Untitled Game";
@@ -18,7 +18,7 @@ public abstract class Game implements tickable, Runnable {
 	protected static Scene loadedScene;
 	protected static String loadedSceneKey;
 		
-	public void run(){
+	public void startGame(){
 
 		new Window(title, width, height);
 		
@@ -28,6 +28,8 @@ public abstract class Game implements tickable, Runnable {
 		
 		if(loadedScene == null)
 			
+			// This does not always load the first element
+			// TODO Set to always load the first element
 			loadScene(scenes.keys().nextElement());
 
 		gameLoop();
@@ -66,14 +68,9 @@ public abstract class Game implements tickable, Runnable {
 				if(Input.up)GameRender.yOffset -= 10 * skips;
 				if(Input.down)GameRender.yOffset += 10 * skips;
 				if(Input.left)GameRender.xOffset -= 10 * skips;
-				if(Input.right)GameRender.xOffset += 10 * skips;
-				
-				//if(Input.e && GameRender.tileSize > 0)GameRender.tileSize -= 1;
-				//if(Input.q && GameRender.tileSize < 9)GameRender.tileSize += 1;
-				
+				if(Input.right)GameRender.xOffset += 10 * skips;	
 				if(Input.e && GameRender.scale >= 0.1)GameRender.scale -= 0.01;				
 				if(Input.q && GameRender.scale < 1)GameRender.scale += 0.01;
-				
 				if(Input.space){GameRender.xOffset = 0; GameRender.yOffset = 0;}
 
 				if (isPaused == false) 

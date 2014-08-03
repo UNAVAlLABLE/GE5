@@ -15,21 +15,6 @@ public class TestGame extends Game {
 	public void start() {
 		
 		loadScene("game.Scene1");
-		
-		// Create a new AsyncTask with iterations set to 4
-		new AsyncTask (4) {
-
-			public void run() {
-
-				for (int i = 0; i < 10; i++) {
-					
-					System.out.println("Iteration " + this.getIteration() + " - " + i);
-					
-				}
-				
-			}
-			
-		};
 												
 	}
 

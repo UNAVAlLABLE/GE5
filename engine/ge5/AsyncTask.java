@@ -1,4 +1,6 @@
 // Class that allows you to create tasks to be added to a task queue and be run in thread pool
+
+
 // To create a task simply create a new anonymous AsyncTask overriding method run() like so:
 //
 //	new AsyncTask () {
@@ -38,14 +40,19 @@ import java.util.LinkedList;
 
 public abstract class AsyncTask implements Runnable{
 	
+	// TODO add option so that iterations can be queued and run on the entire thread pool
+	// instead of always looped through by one thread
+	
+	// TODO add option to set a starting integer from where the iterations loop starts from
+	// (Currently always 0)
+	
+	// TODO add a way that allows the calling thread to wait until a task or tasks are done
+	
 	private static final WorkerThread[] workerThreads;  
 	private static volatile LinkedList<AsyncTask> taskQueue = new LinkedList<AsyncTask>();
 	
-	private int iterations;
-	private int iterator;
-	
-	// True if task has been completed
-	public Boolean isDone = false;
+	private int iterations = 0;
+	private int iterator = 0;
 	
 	// True if task is actually running on a thread
 	public Boolean isRunning = false;
@@ -99,22 +106,27 @@ public abstract class AsyncTask implements Runnable{
 		
 	}
 	
-	void start(){
+	public float getProgress(){
+		
+		return (iterator/(iterations-1));
+		
+	}
+	
+	private void start(){
 		
 		for(int i = 0; i < iterations; i++){
 			
-			iterator = i;			
+			iterator = i;		
 			run();
 			
 		}
 			
-		
 	}
 	
 	@Override
 	public abstract void run(); // This is to be overwritten by the task caller
 	
-	static class WorkerThread extends Thread {
+	private static class WorkerThread extends Thread {
 				
 		@Override
 		public void run(){
@@ -133,7 +145,6 @@ public abstract class AsyncTask implements Runnable{
 							
 						} catch (InterruptedException e) {
 							
-							
 						}
 		                	
 		            }
@@ -147,7 +158,6 @@ public abstract class AsyncTask implements Runnable{
 		        	task.isRunning = true;
 		        	task.start();	
 		        	task.isRunning = false;
-		        	task.isDone = true;
 		            
 		        }
 		        

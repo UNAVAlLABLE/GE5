@@ -6,6 +6,11 @@ import java.util.Hashtable;
 
 public class GameLoader{
 	
+	// TODO Create a method to read a variable number of configurations from a file and load them here
+	// to be stored in a configuration hash-table
+	
+	// TODO Create a method to find all names of all classes from all jars, packages and sub-packages in a directory
+	
 	static ClassLoader classLoader = ClassLoader.getSystemClassLoader();
 	
 	static Game game;
@@ -56,14 +61,14 @@ public class GameLoader{
 			
 		}
 		
-		new Thread(game).start();
+		game.startGame();
 						
 	}
 	
 	// Can be used to load images, sound, maps ... from a file
 	public static InputStream getFileData(String path) {
 		
-		// TODO Currently has problems reaching absolute system paths and relatively parent directories
+		// TODO Currently has problems reaching absolute system paths and relatively parent directories. Needs fixing / replacing
 		return classLoader.getResourceAsStream(path);
 		
 	}

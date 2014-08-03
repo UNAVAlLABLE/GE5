@@ -15,13 +15,5 @@ public class Bitmap {
 		height = h;
 		
 	}
-	
-	public void resize (int w, int h) {
-		
-		width = w;
-		
-		height = h;
-		
-	}
 
 }
