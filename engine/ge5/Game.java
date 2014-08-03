@@ -17,13 +17,13 @@ public abstract class Game implements tickable, Runnable {
 	protected static Hashtable<String, Scene> scenes;
 	protected static Scene loadedScene;
 	protected static String loadedSceneKey;
-	
+		
 	public void run(){
 
 		new Window(title, width, height);
 		
 		scenes = GameLoader.scenes;
-		
+				
 		start();
 		
 		if(loadedScene == null)

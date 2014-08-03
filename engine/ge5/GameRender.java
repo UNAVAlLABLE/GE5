@@ -18,9 +18,7 @@ class GameRender extends Canvas{
 	private BufferedImage image;
 	private BufferStrategy bufferStrategy;
 	private Graphics graphics;
-	
-	//private GraphicsConfiguration config;
-	
+		
 	// The main raster of the view port
 	public volatile static int[] pixels;
 	
@@ -51,7 +49,6 @@ class GameRender extends Canvas{
 		baseImageHeight = imageHeight;
 		
 		this.setSize(imageWidth, imageHeight);
-		//config = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
 		this.resizeImage(imageWidth, imageHeight);
 		this.setFocusable(false);
 		this.setIgnoreRepaint(true);
@@ -63,8 +60,6 @@ class GameRender extends Canvas{
 	}
 		
 	void resizeImage(int width, int height) {
-		
-		//image = config.createCompatibleImage(width, height, Transparency.OPAQUE);
 		
 		image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
@@ -87,7 +82,7 @@ class GameRender extends Canvas{
 		bufferStrategy = getBufferStrategy();
 		graphics = bufferStrategy.getDrawGraphics();
 		
-		renderTilemap2(new Bitmap(test,4000,4000));
+		renderTilemap(new Bitmap(test,4000,4000));
 								
 		graphics.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 				

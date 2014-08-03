@@ -11,15 +11,13 @@ class Window extends Frame {
 	private static final long serialVersionUID = 1L;
 	
 	static GameRender gameRender;
-	static Input input;
 			    
     Window(String title, int width, int height) {
     	
     	setTitle(title);
     	setWindowIcon("icon.png");
     	
-		input = new Input();
-		addKeyListener(input);
+		addKeyListener(new Input());
 		
 		gameRender = new GameRender(width, height);
 		add(gameRender);
