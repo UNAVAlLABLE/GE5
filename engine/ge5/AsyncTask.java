@@ -1,3 +1,37 @@
+// Class that allows you to create tasks to be added to a task queue and be run in thread pool
+// To create a task simply create a new anonymous AsyncTask overriding method run() like so:
+//
+//	new AsyncTask () {
+//		public void run() {
+//			
+//			// Code goes here
+//			
+//		}
+//	};
+
+
+//	You can also create an AsyncTask that that runs a set number of times by creating it with 
+//	the number of wanted iterations as an integer argument:
+//
+//	new AsyncTask (5) {
+//		public void run() {
+//			
+//			// Code to be run 5 times goes here
+//			
+//		}
+//	};
+
+
+//	You can then use the getIteration() method in run() to get the current loop number:
+//
+//	new AsyncTask (5) {
+//		public void run() {
+//			
+//			System.out.println("Loop number: " + getIteration())
+//			
+//		}
+//	};
+
 package ge5;
 
 import java.util.LinkedList;
@@ -8,7 +42,7 @@ public abstract class AsyncTask implements Runnable{
 	private static volatile LinkedList<AsyncTask> taskQueue = new LinkedList<AsyncTask>();
 	
 	private int iterations;
-	int iterator;
+	private int iterator;
 	
 	// True if task has been completed
 	public Boolean isDone = false;
@@ -43,7 +77,7 @@ public abstract class AsyncTask implements Runnable{
 		
 		if(i <= 0){
 			
-			System.out.print("Iteratoions must be larger thatn 0. Currently +" + i);
+			System.out.print("Iterations must be larger thatn 0. Currently :" + i);
 			return;
 			
 		}
@@ -78,7 +112,7 @@ public abstract class AsyncTask implements Runnable{
 	}
 	
 	@Override
-	public abstract void run(); // This is to be over written by task caller
+	public abstract void run(); // This is to be overwritten by the task caller
 	
 	static class WorkerThread extends Thread {
 				
@@ -99,7 +133,6 @@ public abstract class AsyncTask implements Runnable{
 							
 						} catch (InterruptedException e) {
 							
-							e.printStackTrace();
 							
 						}
 		                	
@@ -119,9 +152,7 @@ public abstract class AsyncTask implements Runnable{
 		        }
 		        
 		        catch (RuntimeException e) {
-		        	
-		        	e.printStackTrace();
-		        	
+		        			        	
 		        }
 		        
 		    }
