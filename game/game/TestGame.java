@@ -15,17 +15,6 @@ public class TestGame extends Game {
 	public void start() {
 		
 		loadScene("game.Scene1");
-		
-		new AsyncTask(0,10){
-			
-			@Override
-			public void run() {
-
-				System.out.println(getIteration());
-				
-			}
-			
-		};
 												
 	}
 

@@ -36,16 +36,16 @@
 //
 // The code above prints 0 1 2 3 4
 
+// TODO add option so that iterations can be queued and run on the entire thread pool
+// instead of always looped through by one thread
+
+// TODO add a way to start one / multiple tasks and wait until they are done
+
 package ge5;
 
 import java.util.LinkedList;
 
 public abstract class AsyncTask implements Runnable {
-
-	// TODO add option so that iterations can be queued and run on the entire thread pool
-	// instead of always looped through by one thread
-
-	// TODO add a way to start one / multiple tasks and wait untill they are done
 
 	private static final WorkerThread[] workerThreads;
 	private static volatile LinkedList<AsyncTask> taskQueue = new LinkedList<AsyncTask>();

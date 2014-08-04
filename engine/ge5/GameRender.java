@@ -14,7 +14,7 @@ import java.util.Arrays;
 class GameRender extends Canvas{
 	
 	// TODO Combine zooming through changing tile size and zooming through changing the image size
-	// Probably better too do in a Camera class
+	// Probably better too do in a dedicated Camera class
 
 	private static final long serialVersionUID = 1L;
 
@@ -39,7 +39,7 @@ class GameRender extends Canvas{
 	
 	// Temporary
 	int rowsToDraw;
-	public int[] test = new int[4000000];
+	public int[] test = new int[25000000];
 	final private int baseImageWidth;
 	final private int baseImageHeight;
 	private static float lastScale = 1;
@@ -85,7 +85,7 @@ class GameRender extends Canvas{
 		bufferStrategy = getBufferStrategy();
 		graphics = bufferStrategy.getDrawGraphics();
 		
-		renderTilemap2(new Bitmap(test,4000,4000));
+		renderTilemap2(new Bitmap(test,5000,5000));
 								
 		graphics.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 				

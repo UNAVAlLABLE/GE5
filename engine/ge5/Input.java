@@ -9,6 +9,9 @@ public class Input implements KeyListener, MouseWheelListener {
 			
 	public static boolean up, down, left, right, space, shift, e, q, f, r;
 	
+	// TODO stitch this to a hashtable (keycode, boolean) so we don't have to add keys manually
+	// and make it easier to allow for key customization later
+	
 		
 	protected Input() {
 		

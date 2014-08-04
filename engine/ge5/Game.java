@@ -1,5 +1,3 @@
-// This is the superclass for all game classes
-
 package ge5;
 
 import java.util.Hashtable;
