@@ -1,10 +1,8 @@
-// This is the superclass for all game classes
-
-package ge5.engine;
+package ge5;
 
 import java.util.Hashtable;
 
-public abstract class Game implements Runnable, tickable {
+public abstract class Game implements tickable{
 
 	// Defaults
 	protected static String title = "Untitled Game";
@@ -15,33 +13,28 @@ public abstract class Game implements Runnable, tickable {
 	protected static boolean isPaused = false;
 
 	protected static Hashtable<String, Scene> scenes;
-	
 	protected static Scene loadedScene;
-	protected static String loadedSceneName;
-	
-	protected static long gameTicks = 0;
-	protected static long skippedTicks = 0;
-	protected static long sceneTicks = 0;
-	
-	public void run(){
+	protected static String loadedSceneKey;
 		
-		init();
+	public void startGame(){
 
 		new Window(title, width, height);
 		
 		scenes = GameLoader.scenes;
-		
+				
 		start();
 		
 		if(loadedScene == null)
 			
+			// This does not always load the first element
+			// TODO Set to always load the first element
 			loadScene(scenes.keys().nextElement());
 
-		gameLoop2();
+		gameLoop();
 		
 	}
 	
-	private void gameLoop2() {
+	private void gameLoop() {
 		
 		// Maximum amount of time each tick should last
 		long fixedTickTime = (1000000000L / tickRate);
@@ -62,30 +55,26 @@ public abstract class Game implements Runnable, tickable {
 			
 			if (owedTime >= fixedTickTime) {
 				
-				skips = 1 + owedTime / (fixedTickTime * tickRate);
+				skips = 1 + owedTime / (fixedTickTime * 15);
 				
-				if (skips > 1) {
-					skippedTicks += skips-1;
-					System.out.printf("Simulated %2d tick(s). Overall game preformance: %.2f%s%n", (skips - 1), (1 - (((float) skippedTicks)/gameTicks)) * 100, "%.");
-				}
+				if (skips > 1)
+					System.out.println("Simulated " + (skips - 1) + " tick(s)");
 				
 				tick((int) skips);
 				
+				// Temporary
 				if(Input.up)GameRender.yOffset -= 10 * skips;
 				if(Input.down)GameRender.yOffset += 10 * skips;
 				if(Input.left)GameRender.xOffset -= 10 * skips;
-				if(Input.right)GameRender.xOffset += 10 * skips;
-				if(Input.e && GameRender.tileSize >= 2)GameRender.tileSize -= 1 + 0.1 * GameRender.tileSize * skips;
-				if(Input.q && GameRender.tileSize <= 512)GameRender.tileSize += 1 + 0.1 * GameRender.tileSize * skips;
+				if(Input.right)GameRender.xOffset += 10 * skips;	
+				if(Input.e && GameRender.scale >= 0.1)GameRender.scale -= 0.01;				
+				if(Input.q && GameRender.scale < 1)GameRender.scale += 0.01;
 				if(Input.space){GameRender.xOffset = 0; GameRender.yOffset = 0;}
 
-				if (isPaused == false) {
+				if (isPaused == false) 
 					loadedScene.tick((int) skips);
-					sceneTicks += skips;
-				}
 				
-				gameTicks += skips;
-				Window.gameRender.render();
+				Window.gameRender.renderGame();
 				
 				owedTime -= fixedTickTime * skips;		
 												
@@ -95,54 +84,44 @@ public abstract class Game implements Runnable, tickable {
 		
 	}
 
-	protected void loadScene(String name) {
+	protected void loadScene(String sceneKey) {
+		
+		System.out.println();
 
-		if(scenes.get(name) != null) {
+		if(scenes.get(sceneKey) != null) {
 		
 			if(loadedScene != null){
 				loadedScene.unload();
-				System.out.println("Succesfully unloaded \"" + loadedSceneName + "\"");
+				System.out.println("Unloaded " + loadedSceneKey + "");
 			}
 			
-			loadedScene = scenes.get(name);
+			loadedScene = scenes.get(sceneKey);
 			loadedScene.load();
-			System.out.println("Succesfully loaded \"" + name + "\"");
+			System.out.println("Loaded " + sceneKey + "");
 			loadedScene.start();
 			
-			loadedSceneName = name;
+			loadedSceneKey = sceneKey;
 			
-			sceneTicks = 0;
-
 		} else {
 			
-			System.out.println("Failed to load \"" + name + "\"");
+			System.out.println("Failed to load " + sceneKey + "");
 			
 		}
+		
+		System.out.println();
 		
 	}
 	
 	protected Scene getLoadedScene () {
-		
 		return loadedScene;
-		
 	}
 	
-	protected String getLoadedSceneName () {
-		
-		return loadedSceneName;
-		
+	protected String getLoadedSceneKey () {
+		return loadedSceneKey;
 	}
 
-	protected void pause() {
-
-		isPaused = true;
-
-	}
-
-	protected void unpause() {
-
-		isPaused = false;
-
+	protected void setPaused(Boolean b) {
+		isPaused = b;
 	}
 
 }

@@ -1,4 +1,4 @@
-package ge5.tools;
+package ge5;
 
 public class Vector {
 	

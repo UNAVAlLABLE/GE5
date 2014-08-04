@@ -1,4 +1,4 @@
-package ge5.engine;
+package ge5;
 
 import java.io.InputStream;
 import java.util.Arrays;
@@ -6,20 +6,26 @@ import java.util.Hashtable;
 
 public class GameLoader{
 	
+	// TODO Create a method to read a variable number of configurations from a file and load them here
+	// to be stored in a configuration hash-table
+	
+	// TODO Create a method to find all names of all classes from all jars, packages and sub-packages in a directory
+	
 	static ClassLoader classLoader = ClassLoader.getSystemClassLoader();
 	
 	static Game game;
-	static Hashtable<String, Scene> scenes = new Hashtable<String, Scene>();
-	static Hashtable<String, Tile> tiles = new Hashtable<String, Tile>();
-	static Hashtable<String, Entity> entities = new Hashtable<String, Entity>();
 	
-	public static void main(String[] args) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+	static Hashtable<String, Scene> scenes = new Hashtable<String, Scene>();
+	static Hashtable<String, Class<?>> classes = new Hashtable<String, Class<?>>();
+	
+	
+	public static void main(String[] args) throws Exception {
 		
 		new GameLoader(args);
 				
 	}
 	
-	GameLoader(String[] classNames) throws InstantiationException, IllegalAccessException, ClassNotFoundException{
+	GameLoader(String[] classNames) throws Exception{
 		
 		Arrays.sort(classNames);
 		
@@ -30,23 +36,7 @@ public class GameLoader{
 			if(Scene.class.isAssignableFrom(c)){
 				
 				scenes.put(s, (Scene) c.newInstance());
-				System.out.println("Found scene class " + s);
-				continue;
-				
-			}
-						
-			if(Entity.class.isAssignableFrom(c)){
-				
-				entities.put(s, (Entity) c.newInstance());
-				System.out.println("Found entity class " + s);
-				continue;
-				
-			}
-			
-			if(Tile.class.isAssignableFrom(c)){
-				
-				tiles.put(s, (Tile) c.newInstance());
-				System.out.println("Found tile class " + s);
+				System.out.println("Found scene " + s);
 				continue;
 				
 			}
@@ -54,9 +44,13 @@ public class GameLoader{
 			if(Game.class.isAssignableFrom(c)){
 				
 				game = (Game) c.newInstance();
-				System.out.println("Found game class  " + s);
+				System.out.println("Found game  " + s);
+				continue;
 				
 			}
+				
+			classes.put(s, (Class<?>) c.newInstance());
+			System.out.println("Found unspecified class " + s);
 			
 		}
 		
@@ -67,14 +61,14 @@ public class GameLoader{
 			
 		}
 		
-		new Thread(game).start();
+		game.startGame();
 						
 	}
 	
 	// Can be used to load images, sound, maps ... from a file
-	// TODO Currently has problems reaching absolute system paths and relatively parent directories
 	public static InputStream getFileData(String path) {
 		
+		// TODO Currently has problems reaching absolute system paths and relatively parent directories. Needs fixing / replacing
 		return classLoader.getResourceAsStream(path);
 		
 	}

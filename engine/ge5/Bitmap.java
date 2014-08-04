@@ -1,4 +1,6 @@
-package ge5.engine;
+// Basically just an integer array with a width and height to represent an image
+
+package ge5;
 
 public class Bitmap {
 	
@@ -9,14 +11,6 @@ public class Bitmap {
 	public Bitmap(int[] p, int w, int h){
 		
 		pixels = p;
-		
-		width = w;
-		
-		height = h;
-		
-	}
-	
-	public void resize (int w, int h) {
 		
 		width = w;
 		

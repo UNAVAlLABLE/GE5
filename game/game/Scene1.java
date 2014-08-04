@@ -1,10 +1,6 @@
 package game;
 
-public class Scene1 extends ge5.engine.Scene {
-
-	public void init() {
-		
-	}
+public class Scene1 extends ge5.Scene {
 	
 	public void start() {
 						

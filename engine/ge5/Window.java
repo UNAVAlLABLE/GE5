@@ -1,4 +1,4 @@
-package ge5.engine;
+package ge5;
 
 import java.awt.Frame;
 import java.awt.event.WindowAdapter;
@@ -11,34 +11,28 @@ class Window extends Frame {
 	private static final long serialVersionUID = 1L;
 	
 	static GameRender gameRender;
-	static Input input;
 			    
     Window(String title, int width, int height) {
     	
     	setTitle(title);
+    	setWindowIcon("icon.png");
     	
-		setIgnoreRepaint(true);
-		setResizable(false);
-		
-		input = new Input();
-		
-		addKeyListener(input);
-		addMouseWheelListener(input);
-		
-		setWindowIcon("icon.png");
+		addKeyListener(new Input());
 		
 		gameRender = new GameRender(width, height);
 		add(gameRender);
 		
 		pack();
 		center();
+		requestFocus();		
+		setIgnoreRepaint(true);
+		setResizable(false);
 		setVisible(true);
-		requestFocus();
 		
 		// Has to be called after setVisible
 		gameRender.createBufferStrategy(2);
 		
-		//Ends the program when the 'x' is pressed on the window
+		// Ends the program when the 'x' is pressed on the window
 		addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent we) {
 				
@@ -46,13 +40,13 @@ class Window extends Frame {
 				
 			}
 		});
-
+				
 	}
     
     void setWindowIcon(String path){
     	
 		try {
-				
+			
 			setIconImage(ImageIO.read(GameLoader.getFileData(path)));
 				
 		} catch (Exception e) {
