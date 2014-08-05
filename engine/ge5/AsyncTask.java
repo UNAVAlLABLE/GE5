@@ -24,7 +24,7 @@
 //
 // The code above prints 10 11 12 13 14
 
-// Creating an AsyncTask with a single argument assumes start = 0;
+// Creating an AsyncTask with a single argument assumes start = 0:
 //
 // 	new AsyncTask (5) {
 // 		public void run() {
@@ -35,6 +35,18 @@
 // 	};
 //
 // The code above prints 0 1 2 3 4
+
+// To pause the calling thread until the completion of the task call the await() method:
+//
+// 	AsyncTask task  new AsyncTask () {
+// 		public void run() {
+//
+// 			// Code goes here
+//
+// 		}
+// 	};
+//
+// task.await();
 
 // TODO add option so that iterations can be queued and run on the entire thread pool
 // instead of always looped through by one thread
@@ -105,6 +117,27 @@ public abstract class AsyncTask implements Runnable {
 		for(iterator = start;iterator < end; iterator++)
 			run();
 		
+		notify();
+		
+	}
+	
+	public void await() {
+		
+		await(0);
+		
+	}
+	
+	public synchronized void await(int maxWaitTime) {
+		
+		try {
+			
+			wait(maxWaitTime);
+			
+		} catch (InterruptedException e) {
+			
+			e.printStackTrace();
+		}
+		
 	}
 
 	@Override
@@ -137,7 +170,12 @@ public abstract class AsyncTask implements Runnable {
 
 				try {
 
-					task.execute();
+					synchronized (task) {
+						
+						task.execute();
+						task.notifyAll();
+						
+					}
 
 				} catch (RuntimeException e) {}
 

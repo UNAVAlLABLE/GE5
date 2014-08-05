@@ -179,8 +179,16 @@ class GameRender extends Canvas{
 		t1.start();
 		t2.start();
 		
-		while(t1.isAlive() || t2.isAlive());
-				
+		try {
+			
+			t1.join();
+			t2.join();
+			
+		} catch (Exception e) {
+			
+			
+		}
+						
 	}
 		
 	// Uses drawRaster to cull and render a buffered image with its own width and height
