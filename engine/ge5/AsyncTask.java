@@ -23,18 +23,8 @@
 // 	};
 //
 // The code above prints 10 11 12 13 14
-
-// Creating an AsyncTask with a single argument assumes start = 0:
 //
-// 	new AsyncTask (5) {
-// 		public void run() {
-//
-// 			System.out.print(getIteration());
-//
-// 		}
-// 	};
-//
-// The code above prints 0 1 2 3 4
+// Creating an AsyncTask with a single integer argument assumes start = 0
 
 // To pause the calling thread until the completion of the task call the await() method:
 //
@@ -51,7 +41,7 @@
 // TODO add option so that iterations can be queued and run on the entire thread pool
 // instead of always looped through by one thread
 
-// TODO add a way to start one / multiple tasks and wait until they are done
+// TODO add a way to start multiple tasks and wait until they are done
 
 package ge5;
 
@@ -61,6 +51,7 @@ public abstract class AsyncTask implements Runnable {
 
 	private static final WorkerThread[] workerThreads;
 	private static volatile LinkedList<AsyncTask> taskQueue = new LinkedList<AsyncTask>();
+	private boolean isDone = false;
 
 	private int start, end, iterator;
 
@@ -129,13 +120,17 @@ public abstract class AsyncTask implements Runnable {
 	
 	public synchronized void await(int maxWaitTime) {
 		
-		try {
-			
-			wait(maxWaitTime);
-			
-		} catch (InterruptedException e) {
-			
-			e.printStackTrace();
+		if(!isDone){
+		
+			try {
+				
+				wait(maxWaitTime);
+				
+			} catch (InterruptedException e) {
+				
+				e.printStackTrace();
+			}
+		
 		}
 		
 	}
@@ -174,6 +169,7 @@ public abstract class AsyncTask implements Runnable {
 						
 						task.execute();
 						task.notifyAll();
+						task.isDone = true;
 						
 					}
 
