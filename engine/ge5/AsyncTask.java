@@ -51,19 +51,18 @@ public abstract class AsyncTask implements Runnable {
 
 	private static final WorkerThread[] workerThreads;
 	private static volatile LinkedList<AsyncTask> taskQueue = new LinkedList<AsyncTask>();
-	private boolean isDone = false;
+	
+	public final static int nThreads = Runtime.getRuntime().availableProcessors();
 
 	private int start, end, iterator;
-
+	private boolean isDone = false;
+	
 	static {
 
-		// Gets number of processors (includes hyper threading)
-		int cores = Runtime.getRuntime().availableProcessors();
-
 		// Initializes each element as null
-		workerThreads = new WorkerThread[cores];
+		workerThreads = new WorkerThread[nThreads];
 
-		for (int i = 0; i < cores; i++) {
+		for (int i = 0; i < nThreads; i++) {
 
 			workerThreads[i] = new WorkerThread();
 			workerThreads[i].start();
@@ -107,9 +106,7 @@ public abstract class AsyncTask implements Runnable {
 				
 		for(iterator = start;iterator < end; iterator++)
 			run();
-		
-		notify();
-		
+				
 	}
 	
 	public void await() {
@@ -132,6 +129,23 @@ public abstract class AsyncTask implements Runnable {
 			}
 		
 		}
+		
+	}
+	
+	public static void awaitAll() {
+		
+		awaitAll(0);
+		
+	}
+	
+	public static synchronized void awaitAll(int maxWaitTime) {
+		
+		try {
+		
+			for(AsyncTask task:taskQueue) 
+				task.await(maxWaitTime);
+		
+		} catch (Exception e){}
 		
 	}
 
@@ -159,7 +173,7 @@ public abstract class AsyncTask implements Runnable {
 
 					}
 
-					task = (AsyncTask) taskQueue.removeFirst();
+					task = taskQueue.removeFirst();
 
 				}
 

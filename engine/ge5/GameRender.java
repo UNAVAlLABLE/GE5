@@ -85,7 +85,7 @@ class GameRender extends Canvas{
 		bufferStrategy = getBufferStrategy();
 		graphics = bufferStrategy.getDrawGraphics();
 		
-		renderTilemap2(new Bitmap(test,5000,5000));
+		renderTilemap3(new Bitmap(test,5000,5000));
 								
 		graphics.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 				
@@ -138,7 +138,9 @@ class GameRender extends Canvas{
 		
 		rowsToDraw = endY - startY;
 				
-		Thread t1 = new Thread (() -> {
+		AsyncTask t1 = new AsyncTask () {
+			
+			public void run() {
 				
 				int pixelsY, mapY, worldX, worldY;
 
@@ -154,10 +156,14 @@ class GameRender extends Canvas{
 					rowsToDraw--;
 					
 				}
+				
+			}
 												
-		});
+		};
 		
-		Thread t2 = new Thread (() -> {
+		AsyncTask t2 = new AsyncTask () {
+			
+			public void run(){
 
 				int pixelsY, mapY, worldX, worldY;
 
@@ -173,22 +179,46 @@ class GameRender extends Canvas{
 					rowsToDraw--;
 
 				}
-								
-		});
 				
-		t1.start();
-		t2.start();
+			}
+								
+		};
 		
-		try {
+		t1.await();
+		t2.await();
+							
+	}
+	
+	void renderTilemap3(final Bitmap tileMap) {
+		
+		final int startX = (xOffset < 0) ? 0 : xOffset;
+		final int endX = (xOffset + imageWidth > tileMap.width<<tileSize) ?  tileMap.width<<tileSize :imageWidth + xOffset;
+		final int startY = (yOffset < 0) ? 0 : yOffset;
+		final int endY = (yOffset + imageHeight > tileMap.height<<tileSize) ?  tileMap.height<<tileSize : imageHeight + yOffset;
+		
+		for (int i = 0; i < AsyncTask.nThreads; i++) {
 			
-			t1.join();
-			t2.join();
-			
-		} catch (Exception e) {
-			
+			new AsyncTask(startY + (startY * i), endY - (endY / AsyncTask.nThreads * i)) {
+
+				public void run() {
+
+					int pixelsY, mapY, worldX;
+
+					pixelsY = (getIteration() - yOffset) * imageWidth;
+					mapY = (getIteration() >> tileSize) * tileMap.width;
+
+					for (worldX = startX; worldX < endX; worldX++)
+
+						pixels[(worldX - xOffset) + pixelsY] = tileMap.pixels[(worldX >> tileSize) + mapY];
+
+				}
+
+			};
 			
 		}
-						
+		
+		AsyncTask.awaitAll();
+				
 	}
 		
 	// Uses drawRaster to cull and render a buffered image with its own width and height
