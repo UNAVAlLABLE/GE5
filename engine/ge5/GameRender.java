@@ -85,7 +85,7 @@ class GameRender extends Canvas{
 		bufferStrategy = getBufferStrategy();
 		graphics = bufferStrategy.getDrawGraphics();
 		
-		renderTilemap3(new Bitmap(test,500,500));
+		drawBitmap(new Bitmap(test,500,500), 5000, 550, 0, 0);
 								
 		graphics.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 				
@@ -281,7 +281,7 @@ class GameRender extends Canvas{
 
 		int x1, y1, x2, y2, t;
 
-		for (y2 = 0; y2 < w2; y2++) {
+		for (y2 = 0; y2 < h2; y2++) {
 			
 			y1 = y2 * h1 / h2 * w1;
 			
