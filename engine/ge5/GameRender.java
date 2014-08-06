@@ -281,7 +281,7 @@ class GameRender extends Canvas{
 
 		int x1, y1, x2, y2, t;
 
-		for (y2 = 0; y2 < y2; y2++) {
+		for (y2 = 0; y2 < w2; y2++) {
 			
 			y1 = y2 * h1 / h2 * w1;
 			
