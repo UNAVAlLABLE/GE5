@@ -38,24 +38,22 @@
 //
 // task.await();
 
-// TODO add option so that iterations can be queued and run on the entire thread pool
-// instead of always looped through by one thread
-
-// TODO add a way to start multiple tasks and wait until they are done
-
 package ge5;
 
 import java.util.LinkedList;
 
 public abstract class AsyncTask implements Runnable {
 
+	public final static int nThreads = Runtime.getRuntime().availableProcessors();
+	
 	private static final WorkerThread[] workerThreads;
 	private static volatile LinkedList<AsyncTask> taskQueue = new LinkedList<AsyncTask>();
-	
-	public final static int nThreads = Runtime.getRuntime().availableProcessors();
 
-	private int start, end, iterator;
-	private boolean isDone = false;
+	private volatile int iterator;
+	private volatile int groupIndex; 
+	private volatile int[] groups;
+	
+	private volatile boolean isDone = false;
 	
 	static {
 
@@ -68,7 +66,7 @@ public abstract class AsyncTask implements Runnable {
 			workerThreads[i].start();
 
 		}
-
+		
 	}
 
 	public AsyncTask() {
@@ -80,18 +78,30 @@ public abstract class AsyncTask implements Runnable {
 	}
 
 	public AsyncTask(int start, int end) {
-
-		if (end < start)
+		
+		if(start > end)
 			return;
-
-		this.start = start;
-		this.end = end;
-
+			
+		if(start == end)
+			end++;
+		
+		iterator = start;
+		groupIndex = 0;
+		groups = new int[nThreads];
+		
 		synchronized (taskQueue) {
-
-			taskQueue.addLast(this);
-			taskQueue.notify();
-
+			
+			for(int i = 0; i < nThreads;i++){
+				
+				groups[i] = (end - start) / nThreads;
+				taskQueue.addLast(this);
+				
+			}
+			
+			groups[0] += (end - start) % nThreads;
+			
+			taskQueue.notifyAll();
+			
 		}
 
 	}
@@ -100,13 +110,6 @@ public abstract class AsyncTask implements Runnable {
 
 		return iterator;
 
-	}
-
-	private void execute() {
-				
-		for(iterator = start;iterator < end; iterator++)
-			run();
-				
 	}
 	
 	public void await() {
@@ -126,6 +129,7 @@ public abstract class AsyncTask implements Runnable {
 			} catch (InterruptedException e) {
 				
 				e.printStackTrace();
+				
 			}
 		
 		}
@@ -147,6 +151,35 @@ public abstract class AsyncTask implements Runnable {
 		
 		} catch (Exception e){}
 		
+	}
+	
+	private void execute () {
+							
+		for (int i = 0; i < groups[groupIndex]; i++) {
+			
+			run();
+			
+			synchronized (this) {
+							
+				iterator++;
+				
+			}
+			
+		}
+		
+		synchronized (this) {
+			
+			groupIndex++;
+			
+			if(groupIndex == nThreads) {
+
+				notifyAll();
+				isDone = true;
+											
+			}
+									
+		}
+				
 	}
 
 	@Override
@@ -176,17 +209,11 @@ public abstract class AsyncTask implements Runnable {
 					task = taskQueue.removeFirst();
 
 				}
-
+				
 				try {
-
-					synchronized (task) {
-						
-						task.execute();
-						task.notifyAll();
-						task.isDone = true;
-						
-					}
-
+																				
+					task.execute();
+					
 				} catch (RuntimeException e) {}
 
 			}

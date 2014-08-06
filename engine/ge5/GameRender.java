@@ -29,17 +29,17 @@ class GameRender extends Canvas{
 	static int tileSize = 5;
 	
 	// The world position of the top left corner of the view port
-	static int xOffset = 0;
-	static int yOffset = 0;
+	static volatile int xOffset = 0;
+	static volatile int yOffset = 0;
 	
-	private static int imageWidth;
-	private static int imageHeight;
+	private volatile static int imageWidth;
+	private volatile static int imageHeight;
 	
 	static float scale = 1;
 	
 	// Temporary
 	int rowsToDraw;
-	public int[] test = new int[25000000];
+	public volatile int[] test = new int[250000];
 	final private int baseImageWidth;
 	final private int baseImageHeight;
 	private static float lastScale = 1;
@@ -85,7 +85,7 @@ class GameRender extends Canvas{
 		bufferStrategy = getBufferStrategy();
 		graphics = bufferStrategy.getDrawGraphics();
 		
-		renderTilemap3(new Bitmap(test,5000,5000));
+		renderTilemap3(new Bitmap(test,500,500));
 								
 		graphics.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 				
@@ -195,29 +195,24 @@ class GameRender extends Canvas{
 		final int endX = (xOffset + imageWidth > tileMap.width<<tileSize) ?  tileMap.width<<tileSize :imageWidth + xOffset;
 		final int startY = (yOffset < 0) ? 0 : yOffset;
 		final int endY = (yOffset + imageHeight > tileMap.height<<tileSize) ?  tileMap.height<<tileSize : imageHeight + yOffset;
-		
-		for (int i = 0; i < AsyncTask.nThreads; i++) {
-			
-			new AsyncTask(startY + (startY * i), endY - (endY / AsyncTask.nThreads * i)) {
+				
+		new AsyncTask(startY, endY) {
 
-				public void run() {
-
-					int pixelsY, mapY, worldX;
-
-					pixelsY = (getIteration() - yOffset) * imageWidth;
-					mapY = (getIteration() >> tileSize) * tileMap.width;
-
-					for (worldX = startX; worldX < endX; worldX++)
-
-						pixels[(worldX - xOffset) + pixelsY] = tileMap.pixels[(worldX >> tileSize) + mapY];
+			public void run() {
+				
+				final int row = getIteration();
+				final int pixelsY = (row - yOffset) * imageWidth;
+				final int mapY = (row>>tileSize) * tileMap.width;
+				
+				for (int worldX = startX; worldX < endX; worldX++) {
+											
+					pixels[(worldX - xOffset) + pixelsY] = tileMap.pixels[(worldX >> tileSize) + mapY];
 
 				}
+				
+			}
 
-			};
-			
-		}
-		
-		AsyncTask.awaitAll();
+		}.await();
 				
 	}
 		
