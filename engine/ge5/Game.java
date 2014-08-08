@@ -67,8 +67,8 @@ public abstract class Game implements tickable{
 				if(Input.down)GameRender.yOffset += 10 * skips;
 				if(Input.left)GameRender.xOffset -= 10 * skips;
 				if(Input.right)GameRender.xOffset += 10 * skips;	
-				if(Input.e && GameRender.scale >= 0.1)GameRender.scale -= 0.01;				
-				if(Input.q && GameRender.scale < 1)GameRender.scale += 0.01;
+				if(Input.e) GameRender.scale -= 0.01f;				
+				if(Input.q) GameRender.scale += 0.01f;
 				if(Input.space){GameRender.xOffset = 0; GameRender.yOffset = 0;}
 
 				if (isPaused == false) 

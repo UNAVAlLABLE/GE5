@@ -71,11 +71,16 @@ class GameRender extends Canvas{
 	
 	void renderGame() {
 		
-		if(scale != lastScale){
+		if(scale != lastScale) {
 			
-			imageWidth = (int) (baseImageWidth * scale);
-			imageHeight = (int) (baseImageHeight * scale);
-		
+			float lowestPower = (float) Math.floor(scale);
+			float factor = (float) Math.pow(2, scale - lowestPower);
+					
+			tileSize = (int) Math.pow(2, lowestPower);
+			
+			imageWidth = (int) (baseImageWidth * factor);
+			imageHeight = (int) (baseImageHeight * factor);
+			
 			resizeImage(imageWidth, imageHeight);
 			
 			lastScale = scale;
@@ -85,7 +90,7 @@ class GameRender extends Canvas{
 		bufferStrategy = getBufferStrategy();
 		graphics = bufferStrategy.getDrawGraphics();
 		
-		drawBitmap(new Bitmap(test,500,500), 5000, 550, 0, 0);
+		renderTilemap(new Bitmap(test,500,500));
 								
 		graphics.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 				
