@@ -11,11 +11,27 @@ package ge5;
 
 public abstract class Tile implements tickable {
 
+	// When this tile is loaded this should contain all images of this tile type
+	static int[][] imageSet;
+
+	// References which image in the imageSet that would be displayed during rendering
+	int imageState;
+
 	void load(){
 
 	}
 
 	void unload(){
+
+		imageSet = null;
+		imageState = 0;
+
+	}
+
+	@Override
+	public String toString () {
+
+		return this.getClass().getName();
 
 	}
 

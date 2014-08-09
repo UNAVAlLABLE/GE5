@@ -12,7 +12,9 @@
 
 // You can also create an AsyncTask that that runs a set number of times by creating it with
 // the start (inclusive) and end (exclusive) integer arguments. AsyncTask will automatically
-// divide the tasks between threads. Use getIteration() within run() to get the current loop number:
+// divide the task into batches to be run on the thread pool.
+//
+// Use getIteration() to get the current loop number:
 //
 // 	new AsyncTask (10,15) {
 // 		public void run() {
@@ -23,8 +25,6 @@
 // 	};
 //
 // The code above prints 10 11 12 13 14
-//
-// Creating an AsyncTask with a single integer argument assumes start = 0
 
 // To pause the calling thread until the completion of the task call the await() method:
 //
@@ -226,7 +226,11 @@ public abstract class AsyncTask implements Runnable {
 
 					task.execute();
 
-				} catch (final RuntimeException e) {}
+				} catch (final RuntimeException e) {
+
+					// This is to make sure that a runtime exception does not terminate the thread
+
+				}
 
 			}
 
