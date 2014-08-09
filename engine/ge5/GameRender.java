@@ -90,7 +90,7 @@ class GameRender extends Canvas{
 		bufferStrategy = getBufferStrategy();
 		graphics = bufferStrategy.getDrawGraphics();
 		
-		renderTilemap(new Bitmap(test,500,500));
+		renderTilemap3(new Bitmap(test,500,500));
 								
 		graphics.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 				
@@ -132,8 +132,6 @@ class GameRender extends Canvas{
 		
 	}
 	
-	// Old added before AsyncTask was available
-	// TODO Set this to use AsyncTask
 	void renderTilemap2(final Bitmap tileMap) {
 		
 		final int startX = (xOffset < 0) ? 0 : xOffset;
@@ -200,25 +198,26 @@ class GameRender extends Canvas{
 		final int endX = (xOffset + imageWidth > tileMap.width<<tileSize) ?  tileMap.width<<tileSize :imageWidth + xOffset;
 		final int startY = (yOffset < 0) ? 0 : yOffset;
 		final int endY = (yOffset + imageHeight > tileMap.height<<tileSize) ?  tileMap.height<<tileSize : imageHeight + yOffset;
-				
-		new AsyncTask(startY, endY) {
+						
+		AsyncTask a = new AsyncTask(startY, endY) {
 
 			public void run() {
 				
-				final int row = getIteration();
-				final int pixelsY = (row - yOffset) * imageWidth;
-				final int mapY = (row>>tileSize) * tileMap.width;
+				final int pixelsY = (getIteration() - yOffset) * imageWidth;
+				final int mapY = (getIteration() >> tileSize) * tileMap.width;
 				
 				for (int worldX = startX; worldX < endX; worldX++) {
-											
+			
 					pixels[(worldX - xOffset) + pixelsY] = tileMap.pixels[(worldX >> tileSize) + mapY];
 
 				}
 				
 			}
 
-		}.await();
+		};
 				
+		a.await();
+						
 	}
 		
 	// Uses drawRaster to cull and render a buffered image with its own width and height

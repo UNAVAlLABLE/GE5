@@ -15,7 +15,6 @@ public class TestGame extends Game {
 	public void start() {
 		
 		loadScene("game.Scene1");
-												
 	}
 
 	public void tick(int skips) {

@@ -45,19 +45,15 @@ import java.util.LinkedList;
 public abstract class AsyncTask implements Runnable {
 
 	public final static int nThreads = Runtime.getRuntime().availableProcessors();
+	private final static WorkerThread[] workerThreads;
 	
-	private static final WorkerThread[] workerThreads;
 	private static volatile LinkedList<AsyncTask> taskQueue = new LinkedList<AsyncTask>();
 
-	private volatile int iterator;
-	private volatile int groupIndex; 
-	private volatile int[] groups;
-	
+	private volatile int iterator, end, start, groupIndex; 
 	private volatile boolean isDone = false;
 	
 	static {
 
-		// Initializes each element as null
 		workerThreads = new WorkerThread[nThreads];
 
 		for (int i = 0; i < nThreads; i++) {
@@ -70,14 +66,24 @@ public abstract class AsyncTask implements Runnable {
 	}
 
 	public AsyncTask() {
+		
 		this(1);
+		
 	}
 	
 	public AsyncTask(int end) {
+		
 		this(0,end);
+		
 	}
 
 	public AsyncTask(int start, int end) {
+		
+		this.start = start;
+		this.end = end;
+		
+		iterator = start - 1;
+		groupIndex = nThreads;
 		
 		if(start > end)
 			return;
@@ -85,21 +91,11 @@ public abstract class AsyncTask implements Runnable {
 		if(start == end)
 			end++;
 		
-		iterator = start;
-		groupIndex = 0;
-		groups = new int[nThreads];
-		
 		synchronized (taskQueue) {
 			
-			for(int i = 0; i < nThreads;i++){
-				
-				groups[i] = (end - start) / nThreads;
+			for(int i = 0; i < groupIndex + 1;i++)
 				taskQueue.addLast(this);
-				
-			}
-			
-			groups[0] += (end - start) % nThreads;
-			
+						
 			taskQueue.notifyAll();
 			
 		}
@@ -112,72 +108,70 @@ public abstract class AsyncTask implements Runnable {
 
 	}
 	
-	public void await() {
+	public synchronized void await() {
 		
-		await(0);
-		
-	}
-	
-	public synchronized void await(int maxWaitTime) {
-		
-		if(!isDone){
-		
+		while (!isDone){
+			
 			try {
 				
-				wait(maxWaitTime);
+				wait();
 				
-			} catch (InterruptedException e) {
-				
-				e.printStackTrace();
-				
+			} catch (Exception e) {
+
 			}
-		
+			
 		}
-		
+			
 	}
 	
-	public static void awaitAll() {
+	public static synchronized void awaitAll() {
 		
-		awaitAll(0);
-		
-	}
-	
-	public static synchronized void awaitAll(int maxWaitTime) {
-		
-		try {
-		
-			for(AsyncTask task:taskQueue) 
-				task.await(maxWaitTime);
-		
-		} catch (Exception e){}
+		for(AsyncTask task:taskQueue) 
+			task.await();
 		
 	}
 	
 	private void execute () {
-							
-		for (int i = 0; i < groups[groupIndex]; i++) {
+		
+		int i = 0;
+
+		if(groupIndex-- > 0){
+
+			while (i < (end - start) / nThreads){
+				
+				synchronized (this) {
+					
+					iterator++;
+				
+				}
+				
+				run();
+				i++;
+				
+			}
+						
+		}else{
 			
-			run();
-			
-			synchronized (this) {
-							
-				iterator++;
+			while (i < (end - start) % nThreads){
+				
+				synchronized (this) {
+					
+					iterator++;
+				
+				}
+				
+				run();
+				i++;
 				
 			}
 			
-		}
-		
-		synchronized (this) {
-			
-			groupIndex++;
-			
-			if(groupIndex == nThreads) {
-
-				notifyAll();
+			synchronized (this) {
+				
 				isDone = true;
-											
+				notify();
+			
 			}
-									
+			
 		}
 				
 	}
@@ -186,12 +180,15 @@ public abstract class AsyncTask implements Runnable {
 	public abstract void run(); // This is to be overwritten by the task caller
 
 	private static class WorkerThread extends Thread {
-
+		
+		static int nThreads = 0;
+		final int threadID = nThreads++;
+		
 		@Override
 		public void run() {
 
 			AsyncTask task;
-
+			
 			while (true) {
 
 				synchronized (taskQueue) {
@@ -202,7 +199,11 @@ public abstract class AsyncTask implements Runnable {
 
 							taskQueue.wait();
 
-						} catch (InterruptedException e) {}
+						} catch (InterruptedException e) {
+					
+							
+							
+						}
 
 					}
 
@@ -211,10 +212,14 @@ public abstract class AsyncTask implements Runnable {
 				}
 				
 				try {
-																				
+																									
 					task.execute();
+										
+				} catch (RuntimeException e) {
 					
-				} catch (RuntimeException e) {}
+
+					
+				}
 
 			}
 
