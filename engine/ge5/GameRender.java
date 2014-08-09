@@ -70,13 +70,13 @@ class GameRender extends Canvas{
 
 		if(scale != lastScale) {
 
-			final float lowestPower = (float) Math.floor(scale);
-			final float factor = (float) Math.pow(2, scale - lowestPower);
+			final float roundedDown = (float) Math.floor(scale);
 
-			tileSize = (int) Math.pow(2, lowestPower);
+			final float factor = (float) Math.pow(2, scale - roundedDown);
 
-			imageWidth = (int) (baseImageWidth * factor);
-			imageHeight = (int) (baseImageHeight * factor);
+			tileSize = (int) roundedDown; imageWidth = (int) (baseImageWidth / factor);
+
+			imageHeight = (int) (baseImageHeight / factor);
 
 			resizeImage(imageWidth, imageHeight);
 
