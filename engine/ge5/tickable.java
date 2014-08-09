@@ -1,8 +1,8 @@
 package ge5;
 
 
-public interface tickable{
-	
+public interface tickable {
+
 	void start();
 
 	void tick(int skips);

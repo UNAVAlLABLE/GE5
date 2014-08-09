@@ -12,31 +12,28 @@ import java.awt.image.DataBufferInt;
 import java.util.Arrays;
 
 class GameRender extends Canvas{
-	
-	// TODO Combine zooming through changing tile size and zooming through changing the image size
-	// Probably better too do in a dedicated Camera class
 
 	private static final long serialVersionUID = 1L;
 
 	private BufferedImage image;
 	private BufferStrategy bufferStrategy;
 	private Graphics graphics;
-		
+
 	// The main raster of the view port
 	public volatile static int[] pixels;
-	
+
 	// 2 to the power of this represents the tileSize
 	static int tileSize = 5;
-	
+
 	// The world position of the top left corner of the view port
 	static volatile int xOffset = 0;
 	static volatile int yOffset = 0;
-	
+
 	private volatile static int imageWidth;
 	private volatile static int imageHeight;
-	
+
 	static float scale = 1;
-	
+
 	// Temporary
 	int rowsToDraw;
 	public volatile int[] test = new int[250000];
@@ -44,107 +41,108 @@ class GameRender extends Canvas{
 	final private int baseImageHeight;
 	private static float lastScale = 1;
 
-	GameRender(int width, int height) {
-		
+	GameRender(final int width, final int height) {
+
 		imageWidth = width;
 		imageHeight = height;
 		baseImageWidth = imageWidth;
 		baseImageHeight = imageHeight;
-		
+
 		this.setSize(imageWidth, imageHeight);
-		this.resizeImage(imageWidth, imageHeight);
-		this.setFocusable(false);
-		this.setIgnoreRepaint(true);
-		
+		resizeImage(imageWidth, imageHeight);
+		setFocusable(false);
+		setIgnoreRepaint(true);
+
 		// Temporary
 		for(int i = 0; i < test.length; i++)
 			test[i] = (int) (Math.random() * Integer.MAX_VALUE);
-		
+
 	}
-		
-	void resizeImage(int width, int height) {
-		
+
+	void resizeImage(final int width, final int height) {
+
 		image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
-		
+
 	}
-	
+
 	void renderGame() {
-		
+
 		if(scale != lastScale) {
-			
-			float lowestPower = (float) Math.floor(scale);
-			float factor = (float) Math.pow(2, scale - lowestPower);
-					
+
+			final float lowestPower = (float) Math.floor(scale);
+			final float factor = (float) Math.pow(2, scale - lowestPower);
+
 			tileSize = (int) Math.pow(2, lowestPower);
-			
+
 			imageWidth = (int) (baseImageWidth * factor);
 			imageHeight = (int) (baseImageHeight * factor);
-			
+
 			resizeImage(imageWidth, imageHeight);
-			
+
 			lastScale = scale;
-			
+
 		}
-		
+
 		bufferStrategy = getBufferStrategy();
 		graphics = bufferStrategy.getDrawGraphics();
-		
-		renderTilemap3(new Bitmap(test,500,500));
-								
+
+		renderTilemap(new Bitmap(test,500,500));
+
 		graphics.drawImage(image, 0, 0, getWidth(), getHeight(), null);
-				
+
 		bufferStrategy.show();
 		graphics.dispose();
-		
+
 		Arrays.fill(pixels, 0);
-	
+
 	}
 
 	void renderTilemap(final Bitmap tileMap) {
-		
+
 		// Finds the bounds (in world space) of the pixels that are both visible and are on the tile map
-		final int startX = (xOffset < 0) ? 0 : xOffset;
-		final int endX = (xOffset + imageWidth > tileMap.width<<tileSize) ?  tileMap.width<<tileSize :imageWidth + xOffset;
-		final int startY = (yOffset < 0) ? 0 : yOffset;
-		final int endY = (yOffset + imageHeight > tileMap.height<<tileSize) ?  tileMap.height<<tileSize : imageHeight + yOffset;
-		
+		final int startX = xOffset < 0 ? 0 : xOffset;
+		final int endX = xOffset + imageWidth > tileMap.width<<tileSize ?  tileMap.width<<tileSize :imageWidth + xOffset;
+		final int startY = yOffset < 0 ? 0 : yOffset;
+		final int endY = yOffset + imageHeight > tileMap.height<<tileSize ?  tileMap.height<<tileSize : imageHeight + yOffset;
+
 		int pixelsY, mapY, worldX;
-		
+
 		// For each visible row in world space defined by the bounds above
 		for (int worldY = startY; worldY < endY; worldY++) {
-			
+
 			// Find the corresponding row on the view port and multiply it by image.getWidth() to get its absolute position on pixels[]
 			pixelsY = (worldY - yOffset) * imageWidth;
-			
+
 			// Finds the y of the map tile the pixel occupies and multiply it by tileMap.width
 			mapY = (worldY>>tileSize) * tileMap.width;
-			
+
 			// For each visible column in world space defined by the bounds above
 			for (worldX = startX; worldX < endX; worldX++) {
-				
+
 				// Temporary
-				pixels[(worldX - xOffset) + pixelsY] = tileMap.pixels[(worldX>>tileSize) + mapY];
-				
+				pixels[worldX - xOffset + pixelsY] = tileMap.pixels[(worldX>>tileSize) + mapY];
+
 			}
-			
+
 		}
-		
+
 	}
-	
+
 	void renderTilemap2(final Bitmap tileMap) {
-		
-		final int startX = (xOffset < 0) ? 0 : xOffset;
-		final int endX = (xOffset + imageWidth > tileMap.width<<tileSize) ?  tileMap.width<<tileSize :imageWidth + xOffset;
-		final int startY = (yOffset < 0) ? 0 : yOffset;
-		final int endY = (yOffset + imageHeight > tileMap.height<<tileSize) ?  tileMap.height<<tileSize : imageHeight + yOffset;
-		
+
+		final int startX = xOffset < 0 ? 0 : xOffset;
+		final int endX = xOffset + imageWidth > tileMap.width<<tileSize ?  tileMap.width<<tileSize :imageWidth + xOffset;
+		final int startY = yOffset < 0 ? 0 : yOffset;
+		final int endY = yOffset + imageHeight > tileMap.height<<tileSize ?  tileMap.height<<tileSize : imageHeight + yOffset;
+
 		rowsToDraw = endY - startY;
-				
-		AsyncTask t1 = new AsyncTask () {
-			
+
+		final AsyncTask t1 = new AsyncTask () {
+
+			@Override
 			public void run() {
-				
+
 				int pixelsY, mapY, worldX, worldY;
 
 				for (worldY = startY; worldY < endY && rowsToDraw > 0; worldY++) {
@@ -153,142 +151,144 @@ class GameRender extends Canvas{
 					mapY = (worldY >> tileSize) * tileMap.width;
 
 					for (worldX = startX; worldX < endX; worldX++)
-						
-						pixels[(worldX - xOffset) + pixelsY] = tileMap.pixels[(worldX >> tileSize) + mapY];
+
+						pixels[worldX - xOffset + pixelsY] = tileMap.pixels[(worldX >> tileSize) + mapY];
 
 					rowsToDraw--;
-					
+
 				}
-				
+
 			}
-												
+
 		};
-		
-		AsyncTask t2 = new AsyncTask () {
-			
+
+		final AsyncTask t2 = new AsyncTask () {
+
+			@Override
 			public void run(){
 
 				int pixelsY, mapY, worldX, worldY;
 
 				for (worldY = endY - 1; worldY >= startY && rowsToDraw > 0; worldY--) {
-					
+
 					pixelsY = (worldY - yOffset) * imageWidth;
 					mapY = (worldY >> tileSize) * tileMap.width;
 
-					for (worldX = startX; worldX < endX; worldX++) 
-						
-						pixels[(worldX - xOffset) + pixelsY] = tileMap.pixels[(worldX >> tileSize) + mapY];
+					for (worldX = startX; worldX < endX; worldX++)
+
+						pixels[worldX - xOffset + pixelsY] = tileMap.pixels[(worldX >> tileSize) + mapY];
 
 					rowsToDraw--;
 
 				}
-				
+
 			}
-								
+
 		};
-		
+
 		t1.await();
 		t2.await();
-							
-	}
-	
-	void renderTilemap3(final Bitmap tileMap) {
-		
-		final int startX = (xOffset < 0) ? 0 : xOffset;
-		final int endX = (xOffset + imageWidth > tileMap.width<<tileSize) ?  tileMap.width<<tileSize :imageWidth + xOffset;
-		final int startY = (yOffset < 0) ? 0 : yOffset;
-		final int endY = (yOffset + imageHeight > tileMap.height<<tileSize) ?  tileMap.height<<tileSize : imageHeight + yOffset;
-						
-		AsyncTask a = new AsyncTask(startY, endY) {
 
+	}
+
+	void renderTilemap3(final Bitmap tileMap) {
+
+		final int startX = xOffset < 0 ? 0 : xOffset;
+		final int endX = xOffset + imageWidth > tileMap.width<<tileSize ?  tileMap.width<<tileSize :imageWidth + xOffset;
+		final int startY = yOffset < 0 ? 0 : yOffset;
+		final int endY = yOffset + imageHeight > tileMap.height<<tileSize ?  tileMap.height<<tileSize : imageHeight + yOffset;
+
+		final AsyncTask a = new AsyncTask(startY, endY) {
+
+			@Override
 			public void run() {
-				
+
 				final int pixelsY = (getIteration() - yOffset) * imageWidth;
 				final int mapY = (getIteration() >> tileSize) * tileMap.width;
-				
+
 				for (int worldX = startX; worldX < endX; worldX++) {
-			
-					pixels[(worldX - xOffset) + pixelsY] = tileMap.pixels[(worldX >> tileSize) + mapY];
+
+					pixels[worldX - xOffset + pixelsY] = tileMap.pixels[(worldX >> tileSize) + mapY];
 
 				}
-				
+
 			}
 
 		};
-				
+
 		a.await();
-						
+
 	}
-		
+
 	// Uses drawRaster to cull and render a buffered image with its own width and height
-	public void drawBufferedImage(BufferedImage i, int x, int y) {
+	public void drawBufferedImage(final BufferedImage i, final int x, final int y) {
 
 		drawRaster(((DataBufferInt) i.getRaster().getDataBuffer()).getData(), i.getWidth(), i.getHeight(), x, y);
 
 	}
-	
+
 	// Uses drawRaster to cull and render a buffered image scaled to a custom width and height
-	public void drawBufferedImage(BufferedImage i, int w, int h, int x, int y) {
+	public void drawBufferedImage(final BufferedImage i, final int w, final int h, final int x, final int y) {
 
 		drawRaster(scaleRaster(((DataBufferInt) i.getRaster().getDataBuffer()).getData(), i.getWidth(),i.getHeight(), w, h), 2, h, x, y);
 
 	}
 
 	// Uses drawRaster to cull and render a bitmap with its own width and height
-	public void drawBitmap(Bitmap bitmap, int x, int y) {
+	public void drawBitmap(final Bitmap bitmap, final int x, final int y) {
 
 		drawRaster(bitmap.pixels, bitmap.width, bitmap.height, x, y);
 
 	}
-	
+
 	// Uses drawRaster to cull and render a bitmap scaled to a custom width and height
-	public void drawBitmap(Bitmap bitmap, int w, int h, int x, int y) {
+	public void drawBitmap(final Bitmap bitmap, final int w, final int h, final int x, final int y) {
 
 		drawRaster(scaleRaster(bitmap.pixels, bitmap.width, bitmap.height, w, h), w, h, x, y);
 
 	}
-	
+
 	// Culls and renders a raster onto the view sport
-	public void drawRaster(int[] p, int w, int h, int x, int y) {
+	public void drawRaster(final int[] p, final int w, final int h, final int x, final int y) {
 
 		// Finds the bounds (in world space) of the pixels that are visible and are on the tile map
-		final int startX = (x < 0) ? 0 : x;
-		final int endX = (x + w > imageWidth) ? imageWidth : w + x;
-		final int startY = (y < 0) ? 0 : y;
-		final int endY = (y + h > imageHeight) ? imageHeight : h + y;
-		
+		final int startX = x < 0 ? 0 : x;
+		final int endX = x + w > imageWidth ? imageWidth : w + x;
+		final int startY = y < 0 ? 0 : y;
+		final int endY = y + h > imageHeight ? imageHeight : h + y;
+
 		int offset, i;
-		
+
 		// For each visible row in world space defined by the bounds above
 		for (int row = startY; row < endY; row++) {
-			
+
 			// Calculate the position of the first pixel of the row on the view port
-			offset = (row * imageWidth + startX);
-			
+			offset = row * imageWidth + startX;
+
 			// For each pixel in the row
 			for (i = 0; i < endX - startX; i++) {
-				
+
 				pixels[i + offset] = p[i];
-				
+
 			}
-			
+
 		}
-		
+
 	}
-	
+
 	// Untested optimized version of scale()
-	public static int[] scaleRaster(int[] pixels, int w1, int h1, int w2, int h2) {
-		
+	public static int[] scaleRaster(final int[] pixels, final int w1, final int h1, final int w2, final int h2) {
+
 		// TODO test this
 
-		int[] result = new int[w2 * h2];
+		final int[] result = new int[w2 * h2];
 
 		int x1, y1, x2, y2, t;
 
 		for (y2 = 0; y2 < h2; y2++) {
-			
+
 			y1 = y2 * h1 / h2 * w1;
-			
+
 			t = y2 * w2;
 
 			for (x2 = 0; x2 < w2; x2++) {

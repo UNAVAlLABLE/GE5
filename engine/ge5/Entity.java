@@ -4,6 +4,6 @@
 
 package ge5;
 
-public abstract class Entity implements tickable{
+public abstract class Entity implements tickable {
 
 }

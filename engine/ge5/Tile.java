@@ -10,13 +10,13 @@
 package ge5;
 
 public abstract class Tile implements tickable {
-	
+
 	void load(){
-		
+
 	}
-	
+
 	void unload(){
-		
+
 	}
 
 }

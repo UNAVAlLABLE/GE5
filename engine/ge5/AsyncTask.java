@@ -11,8 +11,8 @@
 // 	};
 
 // You can also create an AsyncTask that that runs a set number of times by creating it with
-// the start (inclusive) and end (exclusive) integer arguments. Use getIteration() within
-// run() to get the current loop number:
+// the start (inclusive) and end (exclusive) integer arguments. AsyncTask will automatically
+// divide the tasks between threads. Use getIteration() within run() to get the current loop number:
 //
 // 	new AsyncTask (10,15) {
 // 		public void run() {
@@ -28,7 +28,7 @@
 
 // To pause the calling thread until the completion of the task call the await() method:
 //
-// 	AsyncTask task  new AsyncTask () {
+// 	AsyncTask task = new AsyncTask () {
 // 		public void run() {
 //
 // 			// Code goes here
@@ -44,17 +44,15 @@ import java.util.LinkedList;
 
 public abstract class AsyncTask implements Runnable {
 
-	public final static int nThreads = Runtime.getRuntime().availableProcessors();
-	private final static WorkerThread[] workerThreads;
-	
+	private final static int nThreads = Runtime.getRuntime().availableProcessors();
+	private final static WorkerThread[] workerThreads = new WorkerThread[nThreads];
+
 	private static volatile LinkedList<AsyncTask> taskQueue = new LinkedList<AsyncTask>();
 
-	private volatile int iterator, end, start, groupIndex; 
+	private volatile int iterator, end, start, groupsToStart, groupsToEnd;
 	private volatile boolean isDone = false;
-	
-	static {
 
-		workerThreads = new WorkerThread[nThreads];
+	static {
 
 		for (int i = 0; i < nThreads; i++) {
 
@@ -62,42 +60,48 @@ public abstract class AsyncTask implements Runnable {
 			workerThreads[i].start();
 
 		}
-		
+
 	}
 
 	public AsyncTask() {
-		
+
 		this(1);
-		
+
 	}
-	
+
 	public AsyncTask(int end) {
-		
+
 		this(0,end);
-		
+
 	}
 
 	public AsyncTask(int start, int end) {
-		
+
 		this.start = start;
 		this.end = end;
-		
 		iterator = start - 1;
-		groupIndex = nThreads;
-		
-		if(start > end)
+		groupsToStart = nThreads;
+		groupsToEnd = nThreads;
+
+		if(start >= end){
+
+
+			synchronized (this) {
+				notify();
+			}
+
+			isDone = true;
 			return;
-			
-		if(start == end)
-			end++;
-		
+
+		}
+
 		synchronized (taskQueue) {
-			
-			for(int i = 0; i < groupIndex + 1;i++)
+
+			for(int i = 0; i < groupsToStart + 1;i++)
 				taskQueue.addLast(this);
-						
+
 			taskQueue.notifyAll();
-			
+
 		}
 
 	}
@@ -107,88 +111,99 @@ public abstract class AsyncTask implements Runnable {
 		return iterator;
 
 	}
-	
-	public synchronized void await() {
-		
-		while (!isDone){
-			
-			try {
-				
-				wait();
-				
-			} catch (Exception e) {
 
-			}
-			
+	public synchronized void await() {
+
+		while (!isDone){
+
+			try {
+
+				wait();
+
+			} catch (final Exception e) {}
+
 		}
-			
+
 	}
-	
+
 	public static synchronized void awaitAll() {
-		
-		for(AsyncTask task:taskQueue) 
+
+		for(final AsyncTask task:taskQueue)
 			task.await();
-		
+
 	}
-	
+
 	private void execute () {
-		
+
 		int i = 0;
 
-		if(groupIndex-- > 0){
+		if(groupsToStart-- > 0){
 
 			while (i < (end - start) / nThreads){
-				
+
 				synchronized (this) {
-					
+
 					iterator++;
-				
+
 				}
-				
+
 				run();
 				i++;
-				
+
 			}
-						
-		}else{
-			
-			while (i < (end - start) % nThreads){
-				
-				synchronized (this) {
-					
-					iterator++;
-				
-				}
-				
-				run();
-				i++;
-				
-			}
-			
+
 			synchronized (this) {
-				
+
+				groupsToEnd--;
+
+			}
+
+		}else{
+
+			while (i < (end - start) % nThreads){
+
+				synchronized (this) {
+
+					iterator++;
+
+				}
+
+				run();
+				i++;
+
+			}
+
+			synchronized (this) {
+
+				groupsToEnd--;
+
+			}
+
+		}
+
+		if(groupsToEnd == 0){
+
+			synchronized (this) {
+
 				isDone = true;
 				notify();
-			
+
 			}
-			
+
 		}
-				
+
 	}
 
 	@Override
 	public abstract void run(); // This is to be overwritten by the task caller
 
 	private static class WorkerThread extends Thread {
-		
-		static int nThreads = 0;
-		final int threadID = nThreads++;
-		
+
 		@Override
 		public void run() {
 
 			AsyncTask task;
-			
+
 			while (true) {
 
 				synchronized (taskQueue) {
@@ -199,27 +214,19 @@ public abstract class AsyncTask implements Runnable {
 
 							taskQueue.wait();
 
-						} catch (InterruptedException e) {
-					
-							
-							
-						}
+						} catch (final InterruptedException e) {}
 
 					}
 
 					task = taskQueue.removeFirst();
 
 				}
-				
-				try {
-																									
-					task.execute();
-										
-				} catch (RuntimeException e) {
-					
 
-					
-				}
+				try {
+
+					task.execute();
+
+				} catch (final RuntimeException e) {}
 
 			}
 
