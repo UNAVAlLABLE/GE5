@@ -214,7 +214,11 @@ public abstract class AsyncTask implements Runnable {
 
 							taskQueue.wait();
 
-						} catch (final InterruptedException e) {}
+						} catch (final InterruptedException e) {
+
+							// Just to make sure a thread continues to wait even when interrupted
+
+						}
 
 					}
 
@@ -229,6 +233,10 @@ public abstract class AsyncTask implements Runnable {
 				} catch (final RuntimeException e) {
 
 					// This is to make sure that a runtime exception does not terminate the thread
+
+				} catch (Exception e) {
+
+					// This is to make sure that an exception does not terminate the thread
 
 				}
 

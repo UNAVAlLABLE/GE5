@@ -28,6 +28,20 @@ public abstract class Tile implements tickable {
 
 	}
 
+	static void load(Tile ... tiles){
+
+		for(Tile tile : tiles)
+			load(tile);
+
+	}
+
+	static void unload(Tile ... tiles){
+
+		for(Tile tile : tiles)
+			unload(tile);
+
+	}
+
 	@Override
 	public String toString () {
 

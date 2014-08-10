@@ -1,7 +1,7 @@
 // TODO Create a method to read a variable number of configurations from a file and load them here
 // to be stored in a configuration hash-table
 
-// TODO Create a method to find all names of all classes from all jars, packages and sub-packages in a directory
+// TODO Create a method to find all names of all classes from all jars, packages and sub-packages in a directory outside the build path
 
 package ge5;
 
@@ -14,10 +14,7 @@ public class GameLoader {
 	static ClassLoader classLoader = ClassLoader.getSystemClassLoader();
 
 	static Game game;
-
-	static Hashtable<String, Scene> scenes = new Hashtable<String, Scene>();
-	static Hashtable<String, Class<?>> classes = new Hashtable<String, Class<?>>();
-
+	static Hashtable<String, Object> classes = new Hashtable<String, Object>();
 
 	public static void main(String[] args) throws Exception {
 
@@ -33,34 +30,35 @@ public class GameLoader {
 
 			final Class<?> c = classLoader.loadClass(s);
 
-			if(Scene.class.isAssignableFrom(c)){
-
-				scenes.put(s, (Scene) c.newInstance());
-				System.out.println("Found scene " + s);
-				continue;
-
-			}
-
-			if(Game.class.isAssignableFrom(c)){
+			if(Game.class.isAssignableFrom(c) && game == null){
 
 				game = (Game) c.newInstance();
-				System.out.println("Found game  " + s);
+				System.out.println("Found main game class " + s);
 				continue;
 
 			}
 
-			classes.put(s, (Class<?>) c.newInstance());
-			System.out.println("Found unspecified class " + s);
+			try{
+
+				classes.put(s, c.newInstance());
+				System.out.println("Found and initialized " + s);
+
+			}catch(final Exception e){
+
+				System.out.println("Found but could not initialize " + s);
+
+			}
 
 		}
 
-		if(game == null || scenes.isEmpty()){
+		if(game == null){
 
-			System.out.print("Lacking game or scene class.\nAborting.");
+			System.out.print("Lacking game class.\nAborting.");
 			System.exit(1);
 
 		}
 
+		System.out.println("Starting Game");
 		game.startGame();
 
 	}

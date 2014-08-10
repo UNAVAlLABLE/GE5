@@ -74,7 +74,9 @@ class GameRender extends Canvas{
 
 			final float factor = (float) Math.pow(2, scale - roundedDown);
 
-			tileSize = (int) roundedDown; imageWidth = (int) (baseImageWidth / factor);
+			tileSize = (int) roundedDown;
+
+			imageWidth = (int) (baseImageWidth / factor);
 
 			imageHeight = (int) (baseImageHeight / factor);
 
@@ -87,7 +89,7 @@ class GameRender extends Canvas{
 		bufferStrategy = getBufferStrategy();
 		graphics = bufferStrategy.getDrawGraphics();
 
-		renderTilemap(new Bitmap(test,500,500));
+		renderTilemap3(new Bitmap(test,500,500));
 
 		graphics.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 

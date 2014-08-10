@@ -4,12 +4,11 @@ import java.util.Hashtable;
 
 public abstract class Scene implements tickable {
 
-	// 2D to allow real time changing of tiles
-	Tile[] tileMap;
-
 	private static Hashtable<String, Scene> sceneList = new Hashtable<String, Scene>();
 	public static Scene loadedScene = null;
 	public static String loadedSceneKey = null;
+
+	Tile[] tileMap;
 
 	public Scene () {
 

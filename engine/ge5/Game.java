@@ -56,7 +56,7 @@ public abstract class Game implements tickable{
 				if(Input.q) GameRender.scale += 0.01f;
 				if(Input.space){GameRender.xOffset = 0; GameRender.yOffset = 0;}
 
-				if (isPaused == false)
+				if (isPaused == false && Scene.loadedScene != null)
 					Scene.loadedScene.tick((int) skips);
 
 				Window.gameRender.renderGame();
@@ -71,6 +71,11 @@ public abstract class Game implements tickable{
 
 	protected void setPaused(final Boolean b) {
 		isPaused = b;
+	}
+
+	@Override
+	public String toString () {
+		return getClass().getName();
 	}
 
 }
