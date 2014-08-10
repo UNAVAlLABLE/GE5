@@ -1,6 +1,5 @@
 package ge5;
 
-import java.util.Hashtable;
 
 public abstract class Game implements tickable{
 
@@ -12,22 +11,10 @@ public abstract class Game implements tickable{
 
 	protected static boolean isPaused = false;
 
-	protected static Hashtable<String, Scene> scenes;
-	protected static Scene loadedScene;
-	protected static String loadedSceneKey;
-
 	public void startGame(){
 
 		new Window(title, width, height);
-
-		scenes = GameLoader.scenes;
-
 		start();
-
-		if(loadedScene == null)
-
-			loadScene(scenes.keys().nextElement());
-
 		gameLoop();
 
 	}
@@ -70,7 +57,7 @@ public abstract class Game implements tickable{
 				if(Input.space){GameRender.xOffset = 0; GameRender.yOffset = 0;}
 
 				if (isPaused == false)
-					loadedScene.tick((int) skips);
+					Scene.loadedScene.tick((int) skips);
 
 				Window.gameRender.renderGame();
 
@@ -80,42 +67,6 @@ public abstract class Game implements tickable{
 
 		}
 
-	}
-
-	protected void loadScene(final String sceneKey) {
-
-		System.out.println();
-
-		if(scenes.get(sceneKey) != null) {
-
-			if(loadedScene != null){
-				loadedScene.unload();
-				System.out.println("Unloaded " + loadedSceneKey + "");
-			}
-
-			loadedScene = scenes.get(sceneKey);
-			loadedScene.load();
-			System.out.println("Loaded " + sceneKey + "");
-			loadedScene.start();
-
-			loadedSceneKey = sceneKey;
-
-		} else {
-
-			System.out.println("Failed to load " + sceneKey + "");
-
-		}
-
-		System.out.println();
-
-	}
-
-	protected Scene getLoadedScene () {
-		return loadedScene;
-	}
-
-	protected String getLoadedSceneKey () {
-		return loadedSceneKey;
 	}
 
 	protected void setPaused(final Boolean b) {

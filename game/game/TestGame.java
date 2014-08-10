@@ -1,6 +1,7 @@
 package game;
 
 import ge5.Game;
+import ge5.Scene;
 
 public class TestGame extends Game {
 
@@ -15,7 +16,7 @@ public class TestGame extends Game {
 	@Override
 	public void start() {
 
-		loadScene("game.Scene1");
+		Scene.loadScene("game.Scene1");
 
 	}
 
