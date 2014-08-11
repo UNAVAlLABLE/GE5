@@ -56,7 +56,7 @@ class GameRender extends Canvas{
 		// Temporary
 		for(int i = 0; i < test.length; i++)
 			test[i] = (int) (Math.random() * Integer.MAX_VALUE);
-		
+
 	}
 
 	void resizeImage(final int width, final int height) {
@@ -75,7 +75,7 @@ class GameRender extends Canvas{
 			final float factor = (float) Math.pow(2, scale - roundedDown);
 
 			tileSize = roundedDown;
-			
+
 			imageWidth = (int) (baseImageWidth / factor);
 			imageHeight = (int) (baseImageHeight / factor);
 
@@ -251,7 +251,7 @@ class GameRender extends Canvas{
 
 	// Culls and renders a raster onto the view sport
 	public void drawRaster(final int[] p, final int w, final int h, final int x, final int y) {
-		
+
 		// Finds the bounds (in world space) of the pixels that are visible and are on the tile map
 		final int startX = x < 0 ? 0 : x;
 		final int endX = x + w > imageWidth ? imageWidth : w + x;
@@ -259,21 +259,21 @@ class GameRender extends Canvas{
 		final int endY = y + h > imageHeight ? imageHeight : h + y;
 
 		final int deltaX = endX - startX;
-		
+
 		int offset, row, t;
-		
+
 		offset = startX + startY * imageWidth;
 		t = startY * w;
 
 		// For each visible row in world space defined by the bounds above
 		for (row = startY; row < endY; row++) {
-			
+
 			// Copy the row from p to the corresponding row in pixels
 			System.arraycopy(p, t, pixels, offset, deltaX);
-			
+
 			// Calculate the position of the first pixel of the row on the view port
 			offset += imageWidth;
-			
+
 			t += w;
 
 		}
@@ -282,86 +282,75 @@ class GameRender extends Canvas{
 
 	// Optimized version of scale()
 	public static int[] scaleRaster(final int[] pixels, final int w1, final int h1, final int w2, final int h2) {
-		
+
 		long now = System.nanoTime();
-				
+
 		final int[] result = new int[w2 * h2];
 
-		int x2, y2, t;
-		
-		int x1, y1;
+		int x, y, yw, t;
 		int rx = (w1 << 16) / w2;
 		int ry = (h1 << 16) / h2;
-				
-		t = 0;
-		
-		y1 = 0;
-				
-		for (y2 = 0; y2 < h2; y2++) {
-			
-			x1 = 0;
-			
-			for (x2 = 0; x2 < w2; x2++) {
-				
-				result[t] = pixels[(x1 >> 16) + (y1 >> 16) * w1];
-				
+
+		for (y = 0, t = 0; y < h2 * ry; y += ry) {
+
+			yw = (y >> 16) * w1;
+
+			for (x = 0; x < w2 * rx; x += rx) {
+
+				result[t] = pixels[(x >> 16) + yw];
 				t++;
-				
-				x1 += rx;
-				
+
 			}
-			
-			y1 += ry;
-						
+
 		}
-				
+
 		System.out.println((System.nanoTime() - now) / 1000000L);
-		
+
 		return result;
 
 	}
-	
+
 	// Method incomplete and not commented
 	public static int[] scaleRasterBilinear(final int[] pixels, final int w1, final int h1, final int w2, final int h2) {
-		
+
 		int[] result = new int[w2 * h2];
-		
+
 		int x, y;
 		int x1, y1, x2, y2;
 		int deltaX, deltaY, dx1, dy1, dx2, dy2;
 		int dividend;
-		
+
 		int r11, r21, r12, r22;
 		int g11, g21, g12, g22;
 		int b11, b21, b12, b22;
-		
+
 		for (y = 0; y < h2; y++) {
-			
+
 			y1 = y * (h1 - 1) / h2;
 			y2 = y1 + 1;
-			
+
 			deltaY = y2 - y1;
-			
+
 			for (x = 0; x < w2; x++) {
-				
+
 				x1 = x * (w1 - 1) / w2;
 				x2 = x1 + 1;
-				
+
 				deltaX = x2 - x1;
-				
+
 				dividend = deltaX * deltaY;
-				
+
 				dx1 = x - x1;
 				dy1 = y - y1;
 				dx2 = x2 - x;
 				dy2 = y2 - y;
-				
+
 			}
-						
+
 		}
-		
+
 		return result;
-		
+
 	}
 
 }
