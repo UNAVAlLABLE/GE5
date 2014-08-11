@@ -88,7 +88,7 @@ class GameRender extends Canvas{
 		bufferStrategy = getBufferStrategy();
 		graphics = bufferStrategy.getDrawGraphics();
 
-		drawBitmap(new Bitmap(test, 5, 5), 1000, 1000, 0, 0);
+		drawBitmap(new Bitmap(test, 5, 5), 500, 500, 0, 0);
 
 		graphics.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 
@@ -282,37 +282,41 @@ class GameRender extends Canvas{
 
 	// Optimized version of scale()
 	public static int[] scaleRaster(final int[] pixels, final int w1, final int h1, final int w2, final int h2) {
+		
+		long now = System.nanoTime();
 				
 		final int[] result = new int[w2 * h2];
 
 		int x2, y2, t;
 		
-		float x1, y1;
-		float rx = (float) w1 / w2;
-		float ry = (float) h1 / h2;
+		int x1, y1;
+		int rx = (w1 << 16) / w2;
+		int ry = (h1 << 16) / h2;
 				
 		t = 0;
 		
 		y1 = 0;
-		
+				
 		for (y2 = 0; y2 < h2; y2++) {
 			
 			x1 = 0;
-
+			
 			for (x2 = 0; x2 < w2; x2++) {
 				
-				result[t] = pixels[(int) x1 + (int) y1 * w1];
-
-				x1 += rx;
+				result[t] = pixels[(x1 >> 16) + (y1 >> 16) * w1];
 				
 				t++;
+				
+				x1 += rx;
 				
 			}
 			
 			y1 += ry;
-			
+						
 		}
 				
+		System.out.println((System.nanoTime() - now) / 1000000L);
+		
 		return result;
 
 	}
