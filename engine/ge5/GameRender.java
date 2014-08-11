@@ -36,7 +36,7 @@ class GameRender extends Canvas{
 
 	// Temporary
 	int rowsToDraw;
-	public volatile int[] test = new int[250000];
+	public volatile int[] test = new int[25];
 	final private int baseImageWidth;
 	final private int baseImageHeight;
 	private static float lastScale = 1;
@@ -56,7 +56,7 @@ class GameRender extends Canvas{
 		// Temporary
 		for(int i = 0; i < test.length; i++)
 			test[i] = (int) (Math.random() * Integer.MAX_VALUE);
-
+		
 	}
 
 	void resizeImage(final int width, final int height) {
@@ -70,14 +70,13 @@ class GameRender extends Canvas{
 
 		if(scale != lastScale) {
 
-			final float roundedDown = (float) Math.floor(scale);
+			final int roundedDown = (int) scale;
 
 			final float factor = (float) Math.pow(2, scale - roundedDown);
 
-			tileSize = (int) roundedDown;
-
+			tileSize = roundedDown;
+			
 			imageWidth = (int) (baseImageWidth / factor);
-
 			imageHeight = (int) (baseImageHeight / factor);
 
 			resizeImage(imageWidth, imageHeight);
@@ -89,7 +88,7 @@ class GameRender extends Canvas{
 		bufferStrategy = getBufferStrategy();
 		graphics = bufferStrategy.getDrawGraphics();
 
-		renderTilemap3(new Bitmap(test,500,500));
+		drawBitmap(new Bitmap(test, 5, 5), 500, 500, 0, 0);
 
 		graphics.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 
@@ -252,59 +251,113 @@ class GameRender extends Canvas{
 
 	// Culls and renders a raster onto the view sport
 	public void drawRaster(final int[] p, final int w, final int h, final int x, final int y) {
-
+		
 		// Finds the bounds (in world space) of the pixels that are visible and are on the tile map
 		final int startX = x < 0 ? 0 : x;
 		final int endX = x + w > imageWidth ? imageWidth : w + x;
 		final int startY = y < 0 ? 0 : y;
 		final int endY = y + h > imageHeight ? imageHeight : h + y;
 
-		int offset, i;
+		final int deltaX = endX - startX;
+		
+		int offset, row, t;
+		
+		offset = startX + startY * imageWidth;
+		t = startY * w;
 
 		// For each visible row in world space defined by the bounds above
-		for (int row = startY; row < endY; row++) {
-
+		for (row = startY; row < endY; row++) {
+			
+			// Copy the row from p to the corresponding row in pixels
+			System.arraycopy(p, t, pixels, offset, deltaX);
+			
 			// Calculate the position of the first pixel of the row on the view port
-			offset = row * imageWidth + startX;
-
-			// For each pixel in the row
-			for (i = 0; i < endX - startX; i++) {
-
-				pixels[i + offset] = p[i];
-
-			}
+			offset += imageWidth;
+			
+			t += w;
 
 		}
 
 	}
 
-	// Untested optimized version of scale()
+	// Optimized version of scale()
 	public static int[] scaleRaster(final int[] pixels, final int w1, final int h1, final int w2, final int h2) {
-
-		// TODO test this
-
+		
 		final int[] result = new int[w2 * h2];
 
-		int x1, y1, x2, y2, t;
+		int x1, y1, x2, y2, t1, t2, t3;
+		
+		t3 = 0;
+		
+		t1 = 0;
 
 		for (y2 = 0; y2 < h2; y2++) {
 
-			y1 = y2 * h1 / h2 * w1;
-
-			t = y2 * w2;
+			y1 = t1 / h2 * w1;
+			
+			t2 = 0;
 
 			for (x2 = 0; x2 < w2; x2++) {
 
-				x1 = x2 * w1 / w2;
+				x1 = t2 / w2;
 
-				result[x2 + t] = pixels[x1 + y1];
+				result[t3] = pixels[x1 + y1];
 
+				t2 += w1;
+				
+				t3++;
+				
 			}
+			
+			t1 += h1;
 
 		}
-
+		
 		return result;
 
+	}
+	
+	// Method incomplete and not commented
+	public static int[] scaleRasterBilinear(final int[] pixels, final int w1, final int h1, final int w2, final int h2) {
+		
+		int[] result = new int[w2 * h2];
+		
+		int x, y;
+		int x1, y1, x2, y2;
+		int deltaX, deltaY, dx1, dy1, dx2, dy2;
+		int dividend;
+		
+		int r11, r21, r12, r22;
+		int g11, g21, g12, g22;
+		int b11, b21, b12, b22;
+		
+		for (y = 0; y < h2; y++) {
+			
+			y1 = y * (h1 - 1) / h2;
+			y2 = y1 + 1;
+			
+			deltaY = y2 - y1;
+			
+			for (x = 0; x < w2; x++) {
+				
+				x1 = x * (w1 - 1) / w2;
+				x2 = x1 + 1;
+				
+				deltaX = x2 - x1;
+				
+				dividend = deltaX * deltaY;
+				
+				dx1 = x - x1;
+				dy1 = y - y1;
+				dx2 = x2 - x;
+				dy2 = y2 - y;
+				
+			}
+						
+		}
+		
+		return result;
+		
 	}
 
 }
