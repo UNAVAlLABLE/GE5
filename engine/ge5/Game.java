@@ -42,8 +42,8 @@ public abstract class Game implements tickable{
 
 				skips = 1 + owedTime / (fixedTickTime * 15);
 
-				if (skips > 1)
-					System.out.println("Simulated " + (skips - 1) + " tick(s)");
+//				if (skips > 1)
+//					System.out.println("Simulated " + (skips - 1) + " tick(s)");
 
 				tick((int) skips);
 
