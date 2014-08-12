@@ -49,7 +49,7 @@ public abstract class AsyncTask implements Runnable {
 
 	private static volatile LinkedList<AsyncTask> taskQueue = new LinkedList<AsyncTask>();
 
-	private volatile int iterator, end, start, groupsToStart, groupsToEnd;
+	private volatile int iterator, iterations, groupsToStart, groupsToEnd;
 	private volatile boolean isDone = false;
 
 	static {
@@ -77,9 +77,8 @@ public abstract class AsyncTask implements Runnable {
 
 	public AsyncTask(int start, int end) {
 
-		this.start = start;
-		this.end = end;
 		iterator = start - 1;
+		iterations = end - start;
 		groupsToStart = nThreads;
 		groupsToEnd = nThreads;
 
@@ -112,13 +111,22 @@ public abstract class AsyncTask implements Runnable {
 
 	}
 
+	public float getProgress() {
+
+		if(isDone)
+			return 1f;
+
+		return (float) iterator / (float) iterations;
+
+	}
+
 	public synchronized void await() {
 
 		while (!isDone){
 
 			try {
 
-				wait();
+				wait(1000);
 
 			} catch (final Exception e) {}
 
@@ -135,11 +143,9 @@ public abstract class AsyncTask implements Runnable {
 
 	private void execute () {
 
-		int i = 0;
-
 		if(groupsToStart-- > 0){
 
-			while (i < (end - start) / nThreads){
+			for (int i = 0; i < iterations / nThreads; i++) {
 
 				synchronized (this) {
 
@@ -148,7 +154,6 @@ public abstract class AsyncTask implements Runnable {
 				}
 
 				run();
-				i++;
 
 			}
 
@@ -160,7 +165,7 @@ public abstract class AsyncTask implements Runnable {
 
 		}else{
 
-			while (i < (end - start) % nThreads){
+			for (int i = 0; i < iterations % nThreads; i++) {
 
 				synchronized (this) {
 
@@ -169,7 +174,6 @@ public abstract class AsyncTask implements Runnable {
 				}
 
 				run();
-				i++;
 
 			}
 
@@ -181,11 +185,12 @@ public abstract class AsyncTask implements Runnable {
 
 		}
 
-		if(groupsToEnd == 0){
+		if(groupsToEnd <= 0){
+
+			isDone = true;
 
 			synchronized (this) {
 
-				isDone = true;
 				notify();
 
 			}
@@ -233,10 +238,6 @@ public abstract class AsyncTask implements Runnable {
 				} catch (final RuntimeException e) {
 
 					// This is to make sure that a runtime exception does not terminate the thread
-
-				} catch (Exception e) {
-
-					// This is to make sure that an exception does not terminate the thread
 
 				}
 
