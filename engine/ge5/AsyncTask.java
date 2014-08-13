@@ -38,6 +38,9 @@
 //
 // task.await();
 
+// TODO Create priority based queue system
+// TODO Debug async related crashes and make sure all WorkerThreads remain active.
+
 package ge5;
 
 import java.util.LinkedList;
@@ -49,7 +52,8 @@ public abstract class AsyncTask implements Runnable {
 
 	private static volatile LinkedList<AsyncTask> taskQueue = new LinkedList<AsyncTask>();
 
-	private volatile int iterator, iterations, groupsToStart, groupsToEnd;
+	private volatile int iterator, nGroups;
+	private final int iterations, start;
 	private volatile boolean isDone = false;
 
 	static {
@@ -77,26 +81,29 @@ public abstract class AsyncTask implements Runnable {
 
 	public AsyncTask(int start, int end) {
 
-		iterator = start - 1;
 		iterations = end - start;
-		groupsToStart = nThreads;
-		groupsToEnd = nThreads;
+		this.start = start;
 
 		if(start >= end){
 
-
 			synchronized (this) {
+
 				notify();
+				isDone = true;
+
 			}
 
-			isDone = true;
 			return;
 
 		}
 
+		iterator = start;
+
+		nGroups = iterations > nThreads ? nThreads : iterations;
+
 		synchronized (taskQueue) {
 
-			for(int i = 0; i < groupsToStart + 1;i++)
+			for(int i = 0; i < nGroups;i++)
 				taskQueue.addLast(this);
 
 			taskQueue.notifyAll();
@@ -116,21 +123,18 @@ public abstract class AsyncTask implements Runnable {
 		if(isDone)
 			return 1f;
 
-		return (float) iterator / (float) iterations;
+		return (float) iterator / (float) (iterations + start);
 
 	}
 
 	public synchronized void await() {
 
-		while (!isDone){
-
+		while (!isDone)
 			try {
 
-				wait(1000);
+				wait();
 
 			} catch (final Exception e) {}
-
-		}
 
 	}
 
@@ -143,57 +147,26 @@ public abstract class AsyncTask implements Runnable {
 
 	private void execute () {
 
-		if(groupsToStart-- > 0){
+		synchronized (this) {nGroups--;}
 
-			for (int i = 0; i < iterations / nThreads; i++) {
+		for (int i = 0; i < iterations / nThreads; i++) {
 
-				synchronized (this) {
-
-					iterator++;
-
-				}
-
-				run();
-
-			}
-
-			synchronized (this) {
-
-				groupsToEnd--;
-
-			}
-
-		}else{
-
-			for (int i = 0; i < iterations % nThreads; i++) {
-
-				synchronized (this) {
-
-					iterator++;
-
-				}
-
-				run();
-
-			}
-
-			synchronized (this) {
-
-				groupsToEnd--;
-
-			}
+			run();
+			synchronized (this) {iterator++;}
 
 		}
 
-		if(groupsToEnd <= 0){
+		if(nGroups == 0) for (int i = 0; i < iterations % nThreads; i++) {
+
+			run();
+			synchronized (this) {iterator++;}
+
+		}
+
+		if(iterator == iterations + start){
 
 			isDone = true;
-
-			synchronized (this) {
-
-				notify();
-
-			}
+			synchronized (this) {notify();}
 
 		}
 
@@ -204,6 +177,9 @@ public abstract class AsyncTask implements Runnable {
 
 	private static class WorkerThread extends Thread {
 
+		static int nThreads = 0;
+		int threadID = nThreads++;
+
 		@Override
 		public void run() {
 
@@ -213,8 +189,7 @@ public abstract class AsyncTask implements Runnable {
 
 				synchronized (taskQueue) {
 
-					while (taskQueue.isEmpty()) {
-
+					while (taskQueue.isEmpty())
 						try {
 
 							taskQueue.wait();
@@ -222,10 +197,9 @@ public abstract class AsyncTask implements Runnable {
 						} catch (final InterruptedException e) {
 
 							// Just to make sure a thread continues to wait even when interrupted
+							System.out.println("Worker thread " + threadID + " interrupted while waiting for task");
 
 						}
-
-					}
 
 					task = taskQueue.removeFirst();
 
@@ -238,6 +212,7 @@ public abstract class AsyncTask implements Runnable {
 				} catch (final RuntimeException e) {
 
 					// This is to make sure that a runtime exception does not terminate the thread
+					System.out.println("WorkerThread " + threadID + ": Runtime exception during execution.");
 
 				}
 

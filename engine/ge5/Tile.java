@@ -11,11 +11,14 @@ package ge5;
 
 public abstract class Tile implements tickable {
 
+	static int tileSize;
+	static int tileStates;
+
 	// When this tile is loaded this should contain all images of this tile type
-	static int[][] imageSet;
+	static int[][] imageSet = new int[tileStates][tileSize];
 
 	// References which image in the imageSet that would be displayed during rendering
-	int imageState;
+	int tileState = 0;
 
 	void load(){
 
@@ -24,7 +27,7 @@ public abstract class Tile implements tickable {
 	void unload(){
 
 		imageSet = null;
-		imageState = 0;
+		tileState = 0;
 
 	}
 

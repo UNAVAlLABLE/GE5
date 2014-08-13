@@ -23,7 +23,7 @@ class GameRender extends Canvas{
 	public volatile static int[] pixels;
 
 	// 2 to the power of this represents the tileSize
-	static int tileSize = 5;
+	static volatile int tileSize = 5;
 
 	// The world position of the top left corner of the view port
 	static volatile int xOffset = 0;
@@ -36,7 +36,7 @@ class GameRender extends Canvas{
 
 	// Temporary
 	int rowsToDraw;
-	public volatile int[] test = new int[25];
+	public volatile int[] test = new int[250000];
 	final private int baseImageWidth;
 	final private int baseImageHeight;
 	private static float lastScale = 1;
@@ -88,7 +88,9 @@ class GameRender extends Canvas{
 		bufferStrategy = getBufferStrategy();
 		graphics = bufferStrategy.getDrawGraphics();
 
-		drawBitmap(new Bitmap(test, 5, 5), 500, 500, 0, 0);
+		renderTilemap3(new Bitmap(test, 500, 500));
+
+		// drawBitmap(new Bitmap(test, 5, 5), 500, 500, 0, 0);
 
 		graphics.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 
@@ -119,12 +121,9 @@ class GameRender extends Canvas{
 			mapY = (worldY>>tileSize) * tileMap.width;
 
 			// For each visible column in world space defined by the bounds above
-			for (worldX = startX; worldX < endX; worldX++) {
-
+			for (worldX = startX; worldX < endX; worldX++)
 				// Temporary
 				pixels[worldX - xOffset + pixelsY] = tileMap.pixels[(worldX>>tileSize) + mapY];
-
-			}
 
 		}
 
@@ -152,8 +151,11 @@ class GameRender extends Canvas{
 					mapY = (worldY >> tileSize) * tileMap.width;
 
 					for (worldX = startX; worldX < endX; worldX++)
-
-						pixels[worldX - xOffset + pixelsY] = tileMap.pixels[(worldX >> tileSize) + mapY];
+						try {
+							pixels[worldX - xOffset + pixelsY] = tileMap.pixels[(worldX >> tileSize) + mapY];
+						} catch (Exception e) {
+							// TODO: handle exception
+						}
 
 					rowsToDraw--;
 
@@ -170,14 +172,17 @@ class GameRender extends Canvas{
 
 				int pixelsY, mapY, worldX, worldY;
 
-				for (worldY = endY - 1; worldY >= startY && rowsToDraw > 0; worldY--) {
+				for (worldY = endY; worldY >= startY && rowsToDraw > 0; worldY--) {
 
 					pixelsY = (worldY - yOffset) * imageWidth;
 					mapY = (worldY >> tileSize) * tileMap.width;
 
 					for (worldX = startX; worldX < endX; worldX++)
-
-						pixels[worldX - xOffset + pixelsY] = tileMap.pixels[(worldX >> tileSize) + mapY];
+						try {
+							pixels[worldX - xOffset + pixelsY] = tileMap.pixels[(worldX >> tileSize) + mapY];
+						} catch (Exception e) {
+							// TODO: handle exception
+						}
 
 					rowsToDraw--;
 
@@ -199,7 +204,7 @@ class GameRender extends Canvas{
 		final int startY = yOffset < 0 ? 0 : yOffset;
 		final int endY = yOffset + imageHeight > tileMap.height<<tileSize ?  tileMap.height<<tileSize : imageHeight + yOffset;
 
-		final AsyncTask a = new AsyncTask(startY, endY) {
+		new AsyncTask(startY, endY) {
 
 			@Override
 			public void run() {
@@ -207,17 +212,12 @@ class GameRender extends Canvas{
 				final int pixelsY = (getIteration() - yOffset) * imageWidth;
 				final int mapY = (getIteration() >> tileSize) * tileMap.width;
 
-				for (int worldX = startX; worldX < endX; worldX++) {
-
+				for (int worldX = startX; worldX < endX; worldX++)
 					pixels[worldX - xOffset + pixelsY] = tileMap.pixels[(worldX >> tileSize) + mapY];
-
-				}
 
 			}
 
-		};
-
-		a.await();
+		}.await();
 
 	}
 
