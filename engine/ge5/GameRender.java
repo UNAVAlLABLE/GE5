@@ -36,7 +36,7 @@ class GameRender extends Canvas{
 
 	// Temporary
 	int rowsToDraw;
-	public volatile int[] test = new int[250000];
+	public volatile int[] test = new int[2 * 2];
 	final private int baseImageWidth;
 	final private int baseImageHeight;
 	private static float lastScale = 1;
@@ -88,9 +88,9 @@ class GameRender extends Canvas{
 		bufferStrategy = getBufferStrategy();
 		graphics = bufferStrategy.getDrawGraphics();
 
-		renderTilemap3(new Bitmap(test, 500, 500));
+		//renderTilemap3(new Bitmap(test, 500, 500));
 
-		// drawBitmap(new Bitmap(test, 5, 5), 500, 500, 0, 0);
+		 drawBitmap(new Bitmap(test, 2, 2), 800, 600, 0, 0);
 
 		graphics.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 
@@ -245,7 +245,7 @@ class GameRender extends Canvas{
 	// Uses drawRaster to cull and render a bitmap scaled to a custom width and height
 	public void drawBitmap(final Bitmap bitmap, final int w, final int h, final int x, final int y) {
 
-		drawRaster(scaleRaster(bitmap.pixels, bitmap.width, bitmap.height, w, h), w, h, x, y);
+		drawRaster(scaleRasterBilinear(bitmap.pixels, bitmap.width, bitmap.height, w, h), w, h, x, y);
 
 	}
 
@@ -283,8 +283,6 @@ class GameRender extends Canvas{
 	// Optimized version of scale()
 	public static int[] scaleRaster(final int[] pixels, final int w1, final int h1, final int w2, final int h2) {
 
-		long now = System.nanoTime();
-
 		final int[] result = new int[w2 * h2];
 
 		int x, y, yw, t;
@@ -304,51 +302,89 @@ class GameRender extends Canvas{
 
 		}
 
-		System.out.println((System.nanoTime() - now) / 1000000L);
-
 		return result;
 
 	}
 
-	// Method incomplete and not commented
+	// Could be optimized, doesn't work for scaling images down
 	public static int[] scaleRasterBilinear(final int[] pixels, final int w1, final int h1, final int w2, final int h2) {
-
+		
 		int[] result = new int[w2 * h2];
 
+		int t = 0;
 		int x, y;
 		int x1, y1, x2, y2;
-		int deltaX, deltaY, dx1, dy1, dx2, dy2;
-		int dividend;
+		int dx1, dy1, dx2, dy2;
 
+		int  q11, q21, q12, q22;
 		int r11, r21, r12, r22;
 		int g11, g21, g12, g22;
 		int b11, b21, b12, b22;
 
+		int r, g, b;
+
+		int deltaX = (w2 << 1) / w1;
+		int deltaY = (h2 << 1) / h1;
+		int divisor = deltaX * deltaY;
+
+		int rx1 = ((w1 - 1) << 16) / w2;
+		int ry1 = ((h1 - 1) << 16) / h2;
+		int rx2 = (w2 << 16) / (w1 - 1);
+		int ry2 = (h2 << 16) / (h1 - 1);
+
 		for (y = 0; y < h2; y++) {
 
-			y1 = y * (h1 - 1) / h2;
-			y2 = y1 + 1;
+			y1 = y * ry1;
+			y2 = y1 + (1 << 16);
 
-			deltaY = y2 - y1;
+			dy1 = y - (y1 >> 16) * h2 / (h1 - 1);
+			dy2 = (y2 >> 16) * h2 / (h1 - 1) - y;
 
 			for (x = 0; x < w2; x++) {
 
-				x1 = x * (w1 - 1) / w2;
-				x2 = x1 + 1;
+				x1 = x * rx1;
+				x2 = x1 + (1 << 16);
 
-				deltaX = x2 - x1;
+				dx1 = x - (x1 >> 16) * w2 / (w1 - 1);
+				dx2 = (x2 >> 16) * w2 / (w1 - 1) - x;
 
-				dividend = deltaX * deltaY;
+				q11 = pixels[(x1 >> 16) + (y1 >> 16) * w1];
+				r11 = (q11 & 0x00FF0000) >> 16; g11 = (q11 & 0x0000FF00) >> 8; b11 = q11 & 0x000000FF;
 
-				dx1 = x - x1;
-				dy1 = y - y1;
-				dx2 = x2 - x;
-				dy2 = y2 - y;
+				q21 = pixels[(x2 >> 16) + (y1 >> 16) * w1];
+				r21 = (q21 & 0x00FF0000) >> 16; g21 = (q21 & 0x0000FF00) >> 8; b21 = q21 & 0x000000FF;
+
+				q12 = pixels[(x1 >> 16) + (y2 >> 16) * w1];
+				r12 = (q12 & 0x00FF0000) >> 16; g12 = (q12 & 0x0000FF00) >> 8; b12 = q12 & 0x000000FF;
+
+				q22 = pixels[(x2 >> 16) + (y2 >> 16) * w1];
+				r22 = (q22 & 0x00FF0000) >> 16; g22 = (q22 & 0x0000FF00) >> 8; b22 = q22 & 0x000000FF;
+
+				r  = r11 * dx2 * dy2;
+				r += r21 * dx1 * dy2;
+				r += r12 * dx2 * dy1;
+				r += r22 * dx1 * dy1;
+				r /= divisor;
+
+				g  = g11 * dx2 * dy2;
+				g += g21 * dx1 * dy2;
+				g += g12 * dx2 * dy1;
+				g += g22 * dx1 * dy1;
+				g /= divisor;
+
+				b  = b11 * dx2 * dy2;
+				b += b21 * dx1 * dy2;
+				b += b12 * dx2 * dy1;
+				b += b22 * dx1 * dy1;
+				b /= divisor;
+
+				result[t] = (r << 16) | (g << 8) | b;
+				t++;
 
 			}
 
 		}
-
+				
 		return result;
 
 	}
