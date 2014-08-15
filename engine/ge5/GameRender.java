@@ -36,7 +36,8 @@ class GameRender extends Canvas{
 
 	// Temporary
 	int rowsToDraw;
-	public volatile int[] test = new int[2 * 2];
+	public volatile int[] test = new int[250000];
+	public volatile int[] test2 = new int[2*2];
 	final private int baseImageWidth;
 	final private int baseImageHeight;
 	private static float lastScale = 1;
@@ -88,9 +89,9 @@ class GameRender extends Canvas{
 		bufferStrategy = getBufferStrategy();
 		graphics = bufferStrategy.getDrawGraphics();
 
-		//renderTilemap3(new Bitmap(test, 500, 500));
+		renderTilemap2(new Bitmap(test, 500, 500));
 
-		 drawBitmap(new Bitmap(test, 2, 2), 800, 600, 0, 0);
+		//drawBitmap(new Bitmap(test2, 2, 2), 800, 600, 0, 0);
 
 		graphics.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 
@@ -249,7 +250,7 @@ class GameRender extends Canvas{
 
 	}
 
-	// Culls and renders a raster onto the view sport
+	// Culls and renders a raster onto the view port
 	public void drawRaster(final int[] p, final int w, final int h, final int x, final int y) {
 
 		// Finds the bounds (in world space) of the pixels that are visible and are on the tile map
@@ -280,7 +281,6 @@ class GameRender extends Canvas{
 
 	}
 
-	// Optimized version of scale()
 	public static int[] scaleRaster(final int[] pixels, final int w1, final int h1, final int w2, final int h2) {
 
 		final int[] result = new int[w2 * h2];
@@ -308,7 +308,7 @@ class GameRender extends Canvas{
 
 	// Could be optimized, doesn't work for scaling images down
 	public static int[] scaleRasterBilinear(final int[] pixels, final int w1, final int h1, final int w2, final int h2) {
-		
+
 		int[] result = new int[w2 * h2];
 
 		int t = 0;
@@ -327,8 +327,8 @@ class GameRender extends Canvas{
 		int deltaY = (h2 << 1) / h1;
 		int divisor = deltaX * deltaY;
 
-		int rx1 = ((w1 - 1) << 16) / w2;
-		int ry1 = ((h1 - 1) << 16) / h2;
+		int rx1 = (w1 - 1 << 16) / w2;
+		int ry1 = (h1 - 1 << 16) / h2;
 		int rx2 = (w2 << 16) / (w1 - 1);
 		int ry2 = (h2 << 16) / (h1 - 1);
 
@@ -378,13 +378,13 @@ class GameRender extends Canvas{
 				b += b22 * dx1 * dy1;
 				b /= divisor;
 
-				result[t] = (r << 16) | (g << 8) | b;
+				result[t] = r << 16 | g << 8 | b;
 				t++;
 
 			}
 
 		}
-				
+
 		return result;
 
 	}

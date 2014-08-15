@@ -9,7 +9,7 @@ public class TestGame extends Game {
 
 		width = 800;
 		height = 600;
-		tickRate = 180;
+		tickRate = 120;
 
 	}
 
