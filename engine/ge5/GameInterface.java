@@ -1,11 +1,13 @@
 package ge5;
 
-import java.util.List;
+import java.util.Set;
 
-public abstract class GameInterface {
+public abstract class GameInterface implements tickable{
 
 	protected int x;
 	protected int y;
+	protected int xOffset = 0;
+	protected int yOffset = 0;
 	protected int width;
 	protected int height;
 
@@ -13,10 +15,12 @@ public abstract class GameInterface {
 	protected boolean isFocusable;
 	protected boolean isFocused;
 
-	protected static List<GameInterface> orphans;
+	protected static Set<GameInterface> orphans;
 
 	protected GameInterface parent;
-	protected List<GameInterface> children;
+	protected Set<GameInterface> children;
+
+	protected abstract void render();
 
 	protected GameInterface getParent(){
 
@@ -24,7 +28,7 @@ public abstract class GameInterface {
 
 	}
 
-	protected List<GameInterface> getChildren(){
+	protected Set<GameInterface> getChildren(){
 
 		return children;
 
@@ -33,27 +37,47 @@ public abstract class GameInterface {
 	protected void setParent(GameInterface newParent){
 
 		parent.orphanChild(this);
-		newParent.adoptChild(this);
+
+		if(newParent != null)
+			newParent.adoptChild(this);
 
 	}
 
 	protected void orphanChild(GameInterface ... gi){
+		for (GameInterface i: gi)
 
-		for (GameInterface i: gi) {
-			children.remove(i);
-			i.parent = null;
-			orphans.add(i);
-		}
+			if(children.remove(i)){
+
+				i.parent = null;
+				orphans.add(i);
+
+				// Adjust positions to world space
+				i.x = i.xOffset + i.x;
+				i.y = i.yOffset + i.y;
+				i.xOffset = 0;
+				i.yOffset = 0;
+
+			}
 
 	}
 
 	protected void adoptChild(GameInterface ... gi){
+		for (GameInterface i: gi){
 
-		for (GameInterface i: gi) {
-			children.add(i);
+			// Remove it from its parent's list
+			if(orphans.remove(i) == false)
+				i.parent.children.remove(i);
+
+			// Adjust positions to new local space
+			i.x -= xOffset + x;
+			i.y -= yOffset + y;
+			i.xOffset = xOffset + x;
+			i.yOffset = yOffset + y;
+
 			i.parent = this;
-		}
+			children.add(i);
 
+		}
 	}
 
 }
