@@ -81,25 +81,12 @@ public abstract class AsyncTask implements Runnable {
 
 	public AsyncTask(int start, int end) {
 
-		iterations = end - start;
+		if(end <= start) end = start + 1;
+
 		this.start = start;
-
-		if(start >= end){
-
-			synchronized (this) {
-
-				notify();
-				isDone = true;
-
-			}
-
-			return;
-
-		}
-
+		iterations = Math.abs(end - start);
 		iterator = start;
-
-		nGroups = iterations > nThreads ? nThreads : iterations;
+		nGroups = end - start > nThreads ? nThreads : iterations;
 
 		synchronized (taskQueue) {
 
@@ -118,15 +105,6 @@ public abstract class AsyncTask implements Runnable {
 
 	}
 
-	public float getProgress() {
-
-		if(isDone)
-			return 1f;
-
-		return (float) iterator / (float) (iterations + start);
-
-	}
-
 	public synchronized void await() {
 
 		while (!isDone)
@@ -134,7 +112,11 @@ public abstract class AsyncTask implements Runnable {
 
 				wait();
 
-			} catch (final Exception e) {}
+			} catch (final Exception e) {
+
+				e.printStackTrace();
+
+			}
 
 	}
 
@@ -147,33 +129,41 @@ public abstract class AsyncTask implements Runnable {
 
 	private void execute () {
 
-		synchronized (this) {nGroups--;}
+		final int g;
 
-		for (int i = 0; i < iterations / nThreads; i++) {
+		synchronized (this) {
 
-			run();
-			synchronized (this) {iterator++;}
-
-		}
-
-		if(nGroups == 0) for (int i = 0; i < iterations % nThreads; i++) {
-
-			run();
-			synchronized (this) {iterator++;}
+			g = nGroups-- == 1 ? iterations / nThreads + iterations % nThreads : iterations / nThreads;
 
 		}
 
-		if(iterator == iterations + start){
+		for (int i = 0; i < g; i++) {
+
+			run();
+
+			synchronized (this) {
+
+				iterator++;
+
+			}
+
+		}
+
+		if(iterator - start >= iterations){
 
 			isDone = true;
-			synchronized (this) {notify();}
+			synchronized (this) {
+
+				notify();
+
+			}
 
 		}
 
 	}
 
 	@Override
-	public abstract void run(); // This is to be overwritten by the task caller
+	public abstract void run();
 
 	private static class WorkerThread extends Thread {
 
@@ -198,6 +188,7 @@ public abstract class AsyncTask implements Runnable {
 
 							// Just to make sure a thread continues to wait even when interrupted
 							System.out.println("Worker thread " + threadID + " interrupted while waiting for task");
+							e.printStackTrace();
 
 						}
 
@@ -213,6 +204,7 @@ public abstract class AsyncTask implements Runnable {
 
 					// This is to make sure that a runtime exception does not terminate the thread
 					System.out.println("WorkerThread " + threadID + ": Runtime exception during execution.");
+					e.printStackTrace();
 
 				}
 
