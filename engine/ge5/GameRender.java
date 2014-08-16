@@ -222,6 +222,13 @@ class GameRender extends Canvas{
 
 	}
 
+	public static void colorPixel(int x, int y, int color){
+
+		if(x >= 0 && x < imageWidth && y >= 0 && y < imageHeight)
+			pixels[x + y * imageWidth] = color;
+
+	}
+
 	// Uses drawRaster to cull and render a buffered image with its own width and height
 	public void drawBufferedImage(final BufferedImage i, final int x, final int y) {
 

@@ -18,6 +18,8 @@ public class TestGame extends Game {
 
 		Scene.loadScene("game.Scene1");
 
+		new ge5.Box(0,0,0,0);
+
 	}
 
 	@Override

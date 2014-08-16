@@ -1,6 +1,8 @@
 package ge5;
 
 
+
+
 public abstract class Game implements tickable{
 
 	// Defaults
